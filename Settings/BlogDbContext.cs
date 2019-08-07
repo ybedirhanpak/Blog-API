@@ -12,10 +12,9 @@ namespace Blog_Project.Models
         public BlogDbContext(DbContextOptions options) : base(options)
         {
         }
-
         DbSet<Post> Posts { get; set; }
         DbSet<User> Users { get; set; }
-        DbSet<User> Comments { get; set; }
-        DbSet<User> Categories { get; set; }
+        DbSet<Comment> Comments { get; set; }
+        DbSet<Category> Categories { get; set; }
     }
 }
