@@ -34,6 +34,11 @@ namespace Blog_Project
                     Configuration.GetConnectionString("DefaultConnection")
                     )
                 );
+            services.AddDbContext<CommentContext>(
+                options => options.UseNpgsql(
+                    Configuration.GetConnectionString("DefaultConnection")
+                    )
+                );
             
         }
 

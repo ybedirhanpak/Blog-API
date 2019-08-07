@@ -12,8 +12,10 @@ namespace Blog_Project.Controllers
     {
         readonly BlogContext Context;
 
-        public BlogController(BlogContext context) 
-            => Context = context;
+        public BlogController(BlogContext context)
+        {
+            Context = context;
+        }
 
         [HttpGet]
         public IActionResult GetComment()
