@@ -29,17 +29,10 @@ namespace Blog_Project
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-            services.AddDbContext<BlogContext>(
-                options => options.UseNpgsql(
-                    Configuration.GetConnectionString("DefaultConnection")
-                    )
-                );
-            services.AddDbContext<CommentContext>(
-                options => options.UseNpgsql(
-                    Configuration.GetConnectionString("DefaultConnection")
-                    )
-                );
-            
+
+            services.AddEntityFrameworkNpgsql().AddDbContext<BlogDbContext>(
+                options => options.UseNpgsql(Configuration.GetConnectionString("CloudConnection"))
+            );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
