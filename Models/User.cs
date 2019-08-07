@@ -7,6 +7,12 @@ namespace Blog_Project.Models
 {
     public class User
     {
+
+        public User()
+        {
+            Id = new Guid();
+        }
+
         public Guid Id { get; set; }
 
         public string Email { get; set; }
@@ -29,5 +35,12 @@ namespace Blog_Project.Models
 
         public string Theme { get; set; }
 
+        public string FacebookLink { get; set; }
+
+        public string TwitterLink { get; set; }
+
+        public string InstagramLink { get; set; }
+
+        public string LinkedinLink { get; set; }
     }
 }

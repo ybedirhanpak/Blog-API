@@ -7,6 +7,12 @@ namespace Blog_Project.Models
 {
     public class Post
     {
+
+        public Post()
+        {
+            Id = new Guid();
+        }
+
         public Guid Id { get; set; }
 
         public Guid OwnerId { get; set; }

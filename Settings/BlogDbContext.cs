@@ -15,5 +15,7 @@ namespace Blog_Project.Models
 
         DbSet<Post> Posts { get; set; }
         DbSet<User> Users { get; set; }
+        DbSet<User> Comments { get; set; }
+        DbSet<User> Categories { get; set; }
     }
 }
