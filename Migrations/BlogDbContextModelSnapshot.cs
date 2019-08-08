@@ -24,13 +24,13 @@ namespace Blog_Project.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<Guid[]>("ChildrenId");
-
                     b.Property<string>("Name");
 
-                    b.Property<Guid>("ParentId");
+                    b.Property<Guid?>("ParentId");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ParentId");
 
                     b.ToTable("Categories");
                 });
@@ -46,11 +46,15 @@ namespace Blog_Project.Migrations
 
                     b.Property<int>("LikeCount");
 
-                    b.Property<string>("OwnerId");
+                    b.Property<Guid>("OwnerId");
 
-                    b.Property<string>("PostId");
+                    b.Property<Guid>("PostId");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("OwnerId");
+
+                    b.HasIndex("PostId");
 
                     b.ToTable("Comments");
                 });
@@ -60,23 +64,16 @@ namespace Blog_Project.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<Guid[]>("Comments");
-
                     b.Property<string>("Content");
 
                     b.Property<string>("LastUpdateDate");
 
-                    b.Property<Guid>("LikedPosts");
-
-                    b.Property<Guid[]>("LikedUsers");
-
-                    b.Property<Guid>("NextPost");
+                    b.Property<Guid?>("NextPostId");
 
                     b.Property<Guid>("OwnerId");
 
-                    b.Property<Guid>("PreviousPost");
-
-                    b.Property<Guid[]>("RelatedCategories");
+                    b.Property<Guid?>("PreviousPostId")
+                        .IsRequired();
 
                     b.Property<string>("SubmitDate");
 
@@ -86,7 +83,30 @@ namespace Blog_Project.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("NextPostId")
+                        .IsUnique();
+
+                    b.HasIndex("OwnerId");
+
                     b.ToTable("Posts");
+                });
+
+            modelBuilder.Entity("Blog_Project.Models.PostCategory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<Guid>("CategoryId");
+
+                    b.Property<Guid>("PostId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("PostId");
+
+                    b.ToTable("PostCategory");
                 });
 
             modelBuilder.Entity("Blog_Project.Models.User", b =>
@@ -98,33 +118,166 @@ namespace Blog_Project.Migrations
 
                     b.Property<string>("Description");
 
-                    b.Property<string>("Email");
+                    b.Property<string>("Email")
+                        .IsRequired();
 
                     b.Property<string>("FacebookLink");
 
-                    b.Property<Guid[]>("Followers");
-
-                    b.Property<Guid[]>("Followings");
-
                     b.Property<string>("InstagramLink");
-
-                    b.Property<Guid[]>("InterestedCategories");
 
                     b.Property<string>("LinkedinLink");
 
-                    b.Property<Guid[]>("Posts");
-
-                    b.Property<string>("RegistrationDate");
+                    b.Property<DateTime>("RegistrationDate");
 
                     b.Property<string>("Theme");
 
                     b.Property<string>("TwitterLink");
 
-                    b.Property<string>("UserName");
+                    b.Property<string>("UserName")
+                        .IsRequired();
 
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("Blog_Project.Models.UserCategory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<Guid>("CategoryId");
+
+                    b.Property<Guid>("UserId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserCategory");
+                });
+
+            modelBuilder.Entity("Blog_Project.Models.UserFollow", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<Guid>("FollowedId");
+
+                    b.Property<Guid>("FollowerId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FollowedId");
+
+                    b.HasIndex("FollowerId");
+
+                    b.ToTable("UserFollows");
+                });
+
+            modelBuilder.Entity("Blog_Project.Models.UserLikePost", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<Guid>("PostId");
+
+                    b.Property<Guid>("UserId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserLikePost");
+                });
+
+            modelBuilder.Entity("Blog_Project.Models.Category", b =>
+                {
+                    b.HasOne("Blog_Project.Models.Category", "Parent")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentId");
+                });
+
+            modelBuilder.Entity("Blog_Project.Models.Comment", b =>
+                {
+                    b.HasOne("Blog_Project.Models.User", "Owner")
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Blog_Project.Models.Post", "Post")
+                        .WithMany("Comments")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Blog_Project.Models.Post", b =>
+                {
+                    b.HasOne("Blog_Project.Models.Post", "PreviousPost")
+                        .WithOne("NextPost")
+                        .HasForeignKey("Blog_Project.Models.Post", "NextPostId")
+                        .HasPrincipalKey("Blog_Project.Models.Post", "PreviousPostId");
+
+                    b.HasOne("Blog_Project.Models.User", "Owner")
+                        .WithMany("Posts")
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Blog_Project.Models.PostCategory", b =>
+                {
+                    b.HasOne("Blog_Project.Models.Category", "Category")
+                        .WithMany("RelatedPosts")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Blog_Project.Models.Post", "Post")
+                        .WithMany("RelatedCategories")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Blog_Project.Models.UserCategory", b =>
+                {
+                    b.HasOne("Blog_Project.Models.Category", "Category")
+                        .WithMany("FollowerUsers")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Blog_Project.Models.User", "User")
+                        .WithMany("InterestedCategories")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Blog_Project.Models.UserFollow", b =>
+                {
+                    b.HasOne("Blog_Project.Models.User", "Followed")
+                        .WithMany("Followers")
+                        .HasForeignKey("FollowedId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Blog_Project.Models.User", "Follower")
+                        .WithMany("Followings")
+                        .HasForeignKey("FollowerId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Blog_Project.Models.UserLikePost", b =>
+                {
+                    b.HasOne("Blog_Project.Models.Post", "Post")
+                        .WithMany("LikedUsers")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Blog_Project.Models.User", "User")
+                        .WithMany("LikedPosts")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
         }

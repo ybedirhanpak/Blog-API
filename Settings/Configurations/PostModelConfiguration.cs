@@ -16,6 +16,11 @@ namespace Blog_Project.Settings.Configurations
                 .WithMany(u => u.Posts)
                 .HasForeignKey(p => p.OwnerId);
 
+            builder.HasOne(p => p.PreviousPost)
+                .WithOne(p => p.NextPost)
+                .HasForeignKey(typeof(Post), "NextPostId")
+                .HasPrincipalKey(typeof(Post), "PreviousPostId");
+
         }
 
     }

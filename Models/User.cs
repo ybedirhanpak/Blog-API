@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
@@ -24,11 +25,13 @@ namespace Blog_Project.Models
         [Required]
         public string UserName { get; set; }
 
-        public Post[] Posts { get; set; }
+        public List<Post> Posts { get; set; }
 
-        public UserFollow[] Followings { get; set; }
+        public List<UserLikePost> LikedPosts { get; set; }
 
-        public UserFollow[] Followers { get; set; }
+        public List<UserFollow> Followings { get; set; }
+        
+        public List<UserFollow> Followers { get; set; }
 
         public string BirthDate { get; set; }
 
@@ -37,7 +40,7 @@ namespace Blog_Project.Models
 
         public string Description { get; set; }
 
-        public UserCategory[] InterestedCategories { get; set; }
+        public List<UserCategory> InterestedCategories { get; set; }
 
         public string Theme { get; set; }
 

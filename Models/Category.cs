@@ -16,11 +16,14 @@ namespace Blog_Project.Models
 
         public string Name { get; set; }
 
-        public Guid ParentId { get; set; }
+        public List<PostCategory> RelatedPosts { get; set; }
 
-        public Guid[] ChildrenId { get; set; }
+        public Guid? ParentId { get; set; }
+        public Category Parent { get; set; }
 
-        public UserCategory[] FollowerUsers { get; set; }
+        public List<Category> Children { get; set; }
+
+        public List<UserCategory> FollowerUsers { get; set; }
 
     }
 }
