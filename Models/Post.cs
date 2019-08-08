@@ -20,25 +20,25 @@ namespace Blog_Project.Models
 
         public string Title { get; set; }
 
-        public Comment[] Comments { get; set; }
+        public List<Comment> Comments { get; set; }
 
         public string Content { get; set; }
 
-        public Guid[] RelatedCategories { get; set; }
+        public List<PostCategory> RelatedCategories { get; set; }
 
         public string SubmitDate { get; set; }
 
         public string LastUpdateDate { get; set; }
 
-        public Guid[] LikedUsers { get; set; }
+        public List<UserLikePost> LikedUsers { get; set; }
 
-        public Guid PreviousPost { get; set; }
+        public Guid? PreviousPostId { get; set; }
+        public Post PreviousPost { get; set; }
 
-        public Guid NextPost { get; set; }
+        public Guid? NextPostId { get; set; }
+        public Post NextPost { get; set; }
 
         public int ViewCount { get; set; }
-
-        public Guid LikedPosts { get; set; }
 
     }
 }

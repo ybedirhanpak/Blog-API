@@ -21,6 +21,11 @@ namespace Blog_Project.Models
             modelBuilder.ApplyConfiguration(new PostModelConfiguration());
             modelBuilder.ApplyConfiguration(new UserFollowModelConfiguration());
             modelBuilder.ApplyConfiguration(new UserCategoryModelConfiguration());
+            modelBuilder.ApplyConfiguration(new CommentModelConfiguration());
+            modelBuilder.ApplyConfiguration(new CategoryModelConfiguration());
+            modelBuilder.ApplyConfiguration(new PostCategoryModelConfiguration());
+            modelBuilder.ApplyConfiguration(new UserLikePostModelConfiguration());
+
         }
 
         DbSet<Post> Posts { get; set; }

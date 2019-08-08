@@ -16,8 +16,10 @@ namespace Blog_Project.Models
 
         [Key]
         public Guid Id { get; set; }
+
         public Guid OwnerId { get; set; }
         public User Owner { get; set; }
+
         public Guid PostId { get; set; }
         public Post Post { get; set; }
 
