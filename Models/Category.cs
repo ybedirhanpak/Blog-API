@@ -20,5 +20,7 @@ namespace Blog_Project.Models
 
         public Guid[] ChildrenId { get; set; }
 
+        public UserCategory[] FollowerUsers { get; set; }
+
     }
 }
