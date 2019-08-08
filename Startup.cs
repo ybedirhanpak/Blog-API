@@ -31,7 +31,7 @@ namespace Blog_Project
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             services.AddEntityFrameworkNpgsql().AddDbContext<BlogDbContext>(
-                options => options.UseNpgsql(Configuration.GetConnectionString("CloudConnection"))
+                options => options.UseNpgsql(Configuration.GetConnectionString("LocalConnection"))
             );
         }
 

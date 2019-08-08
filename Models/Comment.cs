@@ -16,8 +16,11 @@ namespace Blog_Project.Models
 
         [Key]
         public Guid Id { get; set; }
-        public string OwnerId { get; set; }
-        public string PostId { get; set; }
+        public Guid OwnerId { get; set; }
+        public User Owner { get; set; }
+        public Guid PostId { get; set; }
+        public Post Post { get; set; }
+
         public DateTime Date { get; set; }
         public string Content { get; set; }
         public int LikeCount { get; set; }

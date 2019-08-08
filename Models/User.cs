@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -10,28 +11,33 @@ namespace Blog_Project.Models
 
         public User()
         {
+            RegistrationDate = DateTime.Now;
             Id = new Guid();
         }
 
+        [Key]
         public Guid Id { get; set; }
 
+        [Required]
         public string Email { get; set; }
 
+        [Required]
         public string UserName { get; set; }
 
-        public Guid[] Posts { get; set; }
+        public Post[] Posts { get; set; }
 
-        public Guid[] Followings { get; set; }
+        public UserFollow[] Followings { get; set; }
 
-        public Guid[] Followers { get; set; }
+        public UserFollow[] Followers { get; set; }
 
         public string BirthDate { get; set; }
 
-        public string RegistrationDate { get; set; }
+        [Required]
+        public DateTime RegistrationDate { get; set; }
 
         public string Description { get; set; }
 
-        public Guid[] InterestedCategories { get; set; }
+        public UserCategory[] InterestedCategories { get; set; }
 
         public string Theme { get; set; }
 

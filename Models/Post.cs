@@ -16,10 +16,11 @@ namespace Blog_Project.Models
         public Guid Id { get; set; }
 
         public Guid OwnerId { get; set; }
+        public User Owner { get; set; }
 
         public string Title { get; set; }
 
-        public Guid[] Comments { get; set; }
+        public Comment[] Comments { get; set; }
 
         public string Content { get; set; }
 
