@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
-namespace Blog_Project.Models
+namespace Blog_Project.Services
 {
     public class Repository<T> : IRepository<T> where T : class
     {
@@ -48,6 +48,11 @@ namespace Blog_Project.Models
         {
             Table.Update(entity);
             return Save();
+        }
+
+        public T GetById(Guid id)
+        {
+            return Table.Find(id);
         }
 
         public IQueryable<T> Where(Expression<Func<T, bool>> where)

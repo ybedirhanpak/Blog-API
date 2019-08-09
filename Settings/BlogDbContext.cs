@@ -4,8 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Blog_Project.Settings.Configurations;
 using Microsoft.EntityFrameworkCore;
+using Blog_Project.Models;
 
-namespace Blog_Project.Models
+namespace Blog_Project.Settings
 {
     public class BlogDbContext : DbContext
     {

@@ -18,8 +18,8 @@ namespace Blog_Project.Settings.Configurations
 
             builder.HasOne(p => p.PreviousPost)
                 .WithOne(p => p.NextPost)
-                .HasForeignKey(typeof(Post), "NextPostId")
-                .HasPrincipalKey(typeof(Post), "PreviousPostId");
+                .HasForeignKey(typeof(Post), "NextPostId");
+                
 
         }
 
