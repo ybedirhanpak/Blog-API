@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Blog_Project.Models;
 using Blog_Project.Services;
 using Microsoft.AspNetCore.Builder;
@@ -30,7 +31,10 @@ namespace Blog_Project
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
+            services.AddCors();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddAutoMapper(typeof(Startup));
 
             services.AddEntityFrameworkNpgsql().AddDbContext<BlogDbContext>(
                 options => options.UseNpgsql(Configuration.GetConnectionString("CloudConnection"))

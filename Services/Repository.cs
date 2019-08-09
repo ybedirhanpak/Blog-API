@@ -4,44 +4,48 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Blog_Project.Settings;
 
 namespace Blog_Project.Services
 {
     public class Repository<T> : IRepository<T> where T : class
     {
+        private readonly BlogDbContext _dbContext;
 
-        private readonly DbContext dbContext;
-
-        public Repository(DbContext dbContext)
+        public Repository(BlogDbContext dbContext)
         {
-            this.dbContext = dbContext;
+            this._dbContext = dbContext;
             this.Table = dbContext.Set<T>();
         }
 
+        //Reference object to the table
         public DbSet<T> Table { get; set; }
 
-        public bool Add(T entity)
-        {
-            Table.Add(entity);
-            return Save();
-        }
-
+        /**
+         * Returns all of the table
+         */
         public IQueryable<T> All()
         {
             return Table;
         }
 
-        public bool Delete(T entity)
+        /**
+         * Returns the entity with given id.
+         * Returns null if no such entity
+         */
+        public T GetById(Guid id)
         {
-            Table.Remove(entity);
-            return Save();
+            return Table.Find(id);
         }
 
-        public IQueryable<T> OrderBy<TKey>(Expression<Func<T, TKey>> orderBy, bool isDesc)
+        /**
+         * Adds given entity to the table.
+         * Returns true if added successfully.
+         */
+        public bool Add(T entity)
         {
-            if (isDesc)
-                return Table.OrderByDescending(orderBy);
-            return Table.OrderBy(orderBy);
+            Table.Add(entity);
+            return Save();
         }
 
         public bool Update(T entity)
@@ -50,20 +54,28 @@ namespace Blog_Project.Services
             return Save();
         }
 
-        public T GetById(Guid id)
+
+        public bool Delete(T entity)
         {
-            return Table.Find(id);
+            Table.Remove(entity);
+            return Save();
         }
 
         public IQueryable<T> Where(Expression<Func<T, bool>> where)
         {
             return Table.Where(where);
         }
+
+        public IQueryable<T> OrderBy<TKey>(Expression<Func<T, TKey>> orderBy, bool isDesc=false)
+        {
+            return (isDesc) ? Table.OrderByDescending(orderBy) : Table.OrderBy(orderBy);
+        }
+
         private bool Save()
         {
             try
             {
-                dbContext.SaveChanges();
+                _dbContext.SaveChanges();
                 return true;
             }
             catch
