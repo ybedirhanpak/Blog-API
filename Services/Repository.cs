@@ -4,8 +4,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Blog_Project.Settings;
 
-namespace Blog_Project.Models
+namespace Blog_Project.Services
 {
     public class Repository<T> : IRepository<T> where T : class
     {
@@ -52,6 +53,7 @@ namespace Blog_Project.Models
             Table.Update(entity);
             return Save();
         }
+
 
         public bool Delete(T entity)
         {
