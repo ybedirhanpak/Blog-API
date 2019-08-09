@@ -16,6 +16,8 @@ namespace Blog_Project.Models
 
         public string Name { get; set; }
 
+        public string ImageUrl { get; set; }
+
         public List<PostCategory> RelatedPosts { get; set; }
 
         public Guid? ParentId { get; set; }
