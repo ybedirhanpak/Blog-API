@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Blog_Project.Dtos;
 using Blog_Project.Models;
+using Blog_Project.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -27,7 +28,7 @@ namespace Blog_Project.Controllers
         [HttpGet]
         public ActionResult<List<User>> GetAll()
         {
-            return _userRepository.All().OrderBy(u => u.UserName).ToList();
+            return _userRepository.All().Include(u => u.Followers).Include(u => u.Posts).OrderBy(u => u.UserName).ToList();
         }
 
         //GET api/users/getById
@@ -40,7 +41,7 @@ namespace Blog_Project.Controllers
                 return NotFound();
             }
 
-            return user;
+            return Ok(user);
         }
 
         // POST api/users/create
@@ -58,10 +59,15 @@ namespace Blog_Project.Controllers
 
         }
 
-        // POST api/users/create
+        // POST api/users/update/id
         [HttpPost("{id}")]
         public ActionResult<User> Update(string id,[FromBody]UserInDto userDto)
         {
+            var userOld = _userRepository.GetById(Guid.Parse(id));
+            if (userOld == null)
+            {
+                return NotFound();
+            }
 
             var userIn = _mapper.Map<User>(userDto);
             userIn.Id = Guid.Parse(id);
@@ -71,10 +77,9 @@ namespace Blog_Project.Controllers
                 return (userIn);
             }
             return BadRequest();
-
         }
 
-        // POST api/users/create
+        // POST api/users/delete/id
         [HttpPost("{id}")]
         public ActionResult<User> Delete(string id)
         {
