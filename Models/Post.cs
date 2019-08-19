@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -10,9 +11,11 @@ namespace Blog_Project.Models
 
         public Post()
         {
-            Id = new Guid();
+            Id = Guid.NewGuid();
+            SubmitDate = DateTime.Now.ToString();
         }
 
+        
         public Guid Id { get; set; }
 
         public Guid OwnerId { get; set; }

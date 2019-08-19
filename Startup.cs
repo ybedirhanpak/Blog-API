@@ -37,12 +37,12 @@ namespace Blog_Project
             services.AddAutoMapper(typeof(Startup));
 
             services.AddEntityFrameworkNpgsql().AddDbContext<BlogDbContext>(
-                options =>
-                {
+                options => {
                     options.UseNpgsql(Configuration.GetConnectionString("CloudConnection"));
                     options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-                });
-
+                }
+            );
+          
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         }
 
