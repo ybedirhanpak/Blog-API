@@ -42,7 +42,7 @@ namespace Blog_Project
                     options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
                 }
             );
-
+          
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         }
 
