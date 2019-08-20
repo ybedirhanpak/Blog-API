@@ -13,9 +13,7 @@ namespace Blog_Project.Services
         bool Add(T entity);
         bool Update(T entity);
         bool Delete(T entity);
-
         T GetById(Guid id);
-
         IQueryable<T> All();
         IQueryable<T> Where(Expression<Func<T, bool>> where);
         IQueryable<T> OrderBy<TKey>(Expression<Func<T, TKey>> orderBy, bool isDesc);
