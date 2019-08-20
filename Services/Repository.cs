@@ -78,7 +78,7 @@ namespace Blog_Project.Services
                 _dbContext.SaveChanges();
                 return true;
             }
-            catch
+            catch(Exception e)
             {
                 // TODO: Log Exceptions
                 return false;

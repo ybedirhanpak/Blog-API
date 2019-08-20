@@ -13,9 +13,9 @@ namespace Blog_Project.Models
         {
             Id = Guid.NewGuid();
             SubmitDate = DateTime.Now.ToString();
+            LastUpdateDate = SubmitDate;
         }
 
-        
         public Guid Id { get; set; }
 
         public Guid OwnerId { get; set; }

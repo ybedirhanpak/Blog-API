@@ -15,6 +15,8 @@ namespace Blog_Project.Settings
         {
             CreateMap<User, UserInDto>();
             CreateMap<UserInDto, User>();
+            CreateMap<Category, CategoryInDto>();
+            CreateMap<CategoryInDto, Category>();
         }
 
     }

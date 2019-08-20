@@ -21,20 +21,20 @@ namespace Blog_Project.Controllers
         {
             this.postRepository = postRepository;
         }
-        // GET: api/Post
+        // GET: api/posts/get
         [HttpGet]
-        public IActionResult Get()
+        public IActionResult GetAll()
         {
             return Ok(postRepository.All());
         }
         [HttpGet]
-        public ActionResult<List<Post>> GetAll()
+        public ActionResult<List<Post>> GetAll2()
         {
             List<Post> list =  postRepository.All().Include(p => p.NextPost).Include(p => p.PreviousPost).ToList();
             return list;
         }
 
-        // GET: api/Post/5
+        // GET: api/posts/get/5
         [HttpGet("{id}")]
         public ActionResult<Post> Get(string id)
         {
@@ -47,9 +47,9 @@ namespace Blog_Project.Controllers
             return user;
         }
 
-        // POST: api/Post
+        // POST: api/posts/create
         [HttpPost]
-        public IActionResult Post([FromBody] Post post)
+        public IActionResult Create([FromBody] Post post)
         {
             /* if (!ModelState.IsValid || post == null) return BadRequest();
 
@@ -70,7 +70,7 @@ namespace Blog_Project.Controllers
             return BadRequest();
         }
 
-        // PUT: api/Post/5
+        // PUT: api/posts/update
         [HttpPost("{sId}")]
         public IActionResult Update(string sId, [FromBody] Post post)
         {
@@ -88,7 +88,7 @@ namespace Blog_Project.Controllers
             return BadRequest();
         }
 
-        // DELETE: api/ApiWithActions/5
+        // DELETE: api/posts/delete/5
         [HttpPost("{sId}")]
         public IActionResult Delete(string sId)
         {

@@ -25,6 +25,10 @@ namespace Blog_Project.Models
         [Required]
         public string UserName { get; set; }
 
+        public byte[] PasswordHash { get; set; }
+
+        public byte[] PasswordSalt { get; set; }
+
         public List<Post> Posts { get; set; }
 
         public List<UserLikePost> LikedPosts { get; set; }

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using Blog_Project.Dtos;
 using Blog_Project.Models;
 using Blog_Project.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -14,9 +16,12 @@ namespace Blog_Project.Controllers
     {
         private readonly IRepository<Category> _categoryRepository;
 
-        public CategoriesController(IRepository<Category> categoryRepository)
+        private readonly IMapper _mapper;
+
+        public CategoriesController(IRepository<Category> categoryRepository, IMapper mapper)
         {
             _categoryRepository = categoryRepository;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -38,8 +43,10 @@ namespace Blog_Project.Controllers
         }
         
         [HttpPost]
-        public ActionResult<Category> Create([FromBody] Category categoryIn)
+        public ActionResult<Category> Create([FromBody] CategoryInDto categoryInDto)
         {
+            var categoryIn = _mapper.Map<Category>(categoryInDto);
+
             if (_categoryRepository.Add(categoryIn))
             {
                 return categoryIn;
