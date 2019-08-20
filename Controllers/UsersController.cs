@@ -28,7 +28,8 @@ namespace Blog_Project.Controllers
         [HttpGet]
         public ActionResult<List<User>> GetAll()
         {
-            return _userRepository.All().Include(u => u.Followers).Include(u => u.Posts).OrderBy(u => u.UserName).ToList();
+            var x = Ok(_userRepository.All().Include(u => u.Posts).ToList());
+            return x;
         }
 
         //GET api/users/getById
