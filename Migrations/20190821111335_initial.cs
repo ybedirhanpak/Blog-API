@@ -12,7 +12,8 @@ namespace Blog_Project.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
-                    Name = table.Column<string>(nullable: true),
+                    Name = table.Column<string>(nullable: false),
+                    ImageUrl = table.Column<string>(nullable: false),
                     ParentId = table.Column<Guid>(nullable: true)
                 },
                 constraints: table =>
@@ -33,6 +34,8 @@ namespace Blog_Project.Migrations
                     Id = table.Column<Guid>(nullable: false),
                     Email = table.Column<string>(nullable: false),
                     UserName = table.Column<string>(nullable: false),
+                    PasswordHash = table.Column<byte[]>(nullable: false),
+                    PasswordSalt = table.Column<byte[]>(nullable: false),
                     BirthDate = table.Column<string>(nullable: true),
                     RegistrationDate = table.Column<DateTime>(nullable: false),
                     Description = table.Column<string>(nullable: true),
@@ -53,24 +56,15 @@ namespace Blog_Project.Migrations
                 {
                     Id = table.Column<Guid>(nullable: false),
                     OwnerId = table.Column<Guid>(nullable: false),
-                    Title = table.Column<string>(nullable: true),
-                    Content = table.Column<string>(nullable: true),
-                    SubmitDate = table.Column<string>(nullable: true),
-                    LastUpdateDate = table.Column<string>(nullable: true),
-                    PreviousPostId = table.Column<Guid>(nullable: false),
-                    NextPostId = table.Column<Guid>(nullable: true),
+                    Title = table.Column<string>(nullable: false),
+                    Content = table.Column<string>(nullable: false),
+                    SubmitDate = table.Column<DateTime>(nullable: false),
+                    LastUpdateDate = table.Column<DateTime>(nullable: false),
                     ViewCount = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Posts", x => x.Id);
-                    table.UniqueConstraint("AK_Posts_PreviousPostId", x => x.PreviousPostId);
-                    table.ForeignKey(
-                        name: "FK_Posts_Posts_NextPostId",
-                        column: x => x.NextPostId,
-                        principalTable: "Posts",
-                        principalColumn: "PreviousPostId",
-                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Posts_Users_OwnerId",
                         column: x => x.OwnerId,
@@ -136,8 +130,8 @@ namespace Blog_Project.Migrations
                     Id = table.Column<Guid>(nullable: false),
                     OwnerId = table.Column<Guid>(nullable: false),
                     PostId = table.Column<Guid>(nullable: false),
-                    Date = table.Column<DateTime>(nullable: false),
-                    Content = table.Column<string>(nullable: true),
+                    SubmitDate = table.Column<DateTime>(nullable: false),
+                    Content = table.Column<string>(nullable: false),
                     LikeCount = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
@@ -231,12 +225,6 @@ namespace Blog_Project.Migrations
                 name: "IX_PostCategory_PostId",
                 table: "PostCategory",
                 column: "PostId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Posts_NextPostId",
-                table: "Posts",
-                column: "NextPostId",
-                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Posts_OwnerId",
