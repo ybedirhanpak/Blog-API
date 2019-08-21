@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Blog_Project.Dtos;
+using Blog_Project.Helpers;
 using Blog_Project.Models;
 using Blog_Project.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -24,11 +25,36 @@ namespace Blog_Project.Controllers
             this._mapper = mapper;
         }
 
+        [HttpPost]
+        public IActionResult Authenticate([FromBody]UserInDto userDto)
+        {
+            if (string.IsNullOrEmpty(userDto.Email) || string.IsNullOrEmpty(userDto.Password))
+            {
+                return null;
+            }
+
+            var user = _userRepository.Where(u => u.Email == userDto.Email).FirstOrDefault();
+
+            // return null if user not found
+            if (user == null)
+                return null;
+
+            if (!UserHelpers.VerifyPasswordHash(userDto.Password, user.PasswordHash, user.PasswordSalt))
+            {
+                return null;
+            }
+
+            return Ok("Login Succesfull");
+        }
+        
+        
+        
+        
         //GET api/users/get
         [HttpGet]
         public ActionResult<List<User>> GetAll()
         {
-            var x = Ok(_userRepository.All().Include(u => u.Posts).ToList());
+            var x = Ok(_userRepository.All().ToList());
             return x;
         }
 
@@ -49,8 +75,18 @@ namespace Blog_Project.Controllers
         [HttpPost]
         public ActionResult<User> Create([FromBody]UserInDto userDto)
         {
-            
+            byte[] passwordHash, passwordSalt;
+            UserHelpers.CreatePasswordHash(userDto.Password, out passwordHash, out passwordSalt);
+
             var userIn = _mapper.Map<User>(userDto);
+
+            userIn.PasswordHash = passwordHash;
+            userIn.PasswordSalt = passwordSalt;
+
+            if (string.IsNullOrWhiteSpace(userDto.Password))
+            {
+                throw new AppException("User not found");
+            }
 
             if (_userRepository.Add(userIn))
             {
