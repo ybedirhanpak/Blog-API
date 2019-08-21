@@ -15,91 +15,114 @@ namespace Blog_Project.Controllers
     [ApiController]
     public class PostsController : ControllerBase
     {
-        private readonly IRepository<Post> postRepository;
+        private readonly IRepository<Post> _postRepository;
+        private readonly IRepository<PostCategory> _postCategoryRepository;
 
-        public PostsController(IRepository<Post> postRepository)
+        private readonly IMapper _mapper;
+
+        public PostsController(
+            IRepository<Post> postRepository,
+            IRepository<PostCategory> postCategoryRepository, 
+            IMapper mapper)
         {
-            this.postRepository = postRepository;
+            _postRepository = postRepository;
+            _postCategoryRepository = postCategoryRepository;
+            _mapper = mapper;
         }
-        // GET: api/posts/get
+
+        /**
+         * Gives response including all posts in table.
+         *
+         * GET: api/posts/getAll
+         */
         [HttpGet]
         public IActionResult GetAll()
         {
-            return Ok(postRepository.All());
-        }
-        [HttpGet]
-        public ActionResult<List<Post>> GetAll2()
-        {
-            List<Post> list =  postRepository.All().Include(p => p.NextPost).Include(p => p.PreviousPost).ToList();
-            return list;
+            return Ok(_postRepository.All());
         }
 
-        // GET: api/posts/get/5
+        /**
+         * Gives response including one post which has given id.
+         *
+         * GET: api/posts/get/{id}
+         */
         [HttpGet("{id}")]
         public ActionResult<Post> Get(string id)
         {
-            var user = postRepository.GetById(Guid.Parse(id));
-            if (user == null)
+            var post = _postRepository.GetById(Guid.Parse(id));
+
+            if (post == null)
             {
-                return NotFound();
+                return NotFound("No such post with this id: "+id);
             }
 
-            return user;
+            var prevPost = _postRepository.Where(p => p.SubmitDate < post.SubmitDate)
+                .FirstOrDefault();
+
+            var nextPost = _postRepository.Where(p => p.SubmitDate > post.SubmitDate)
+                .FirstOrDefault();
+
+            var postOutDto = _mapper.Map<PostOutDto>(post);
+            postOutDto.PreviousPost = prevPost;
+            postOutDto.NextPost = nextPost;
+
+            return Ok(postOutDto);
         }
 
-        // POST: api/posts/create
+        /**
+         * Creates new column in table with given post.
+         * Gives OK response with post object if adding process is successful.
+         *
+         * POST: api/posts/create
+         */
         [HttpPost]
-        public IActionResult Create([FromBody] Post post)
+        public IActionResult Create([FromBody] PostInDto postInDto)
         {
-            /* if (!ModelState.IsValid || post == null) return BadRequest();
 
-             if (postRepository.Add(post))
-                 return Ok(post);
+            if (!ModelState.IsValid || postInDto == null) return BadRequest(error:"Post not valid or null");
 
-             return BadRequest();*/
+            var postIn = _mapper.Map<Post>(postInDto);
 
-            if (!ModelState.IsValid || post == null) return BadRequest();
+            //Update previous post, current post and owner.
+            if (!_postRepository.Add(postIn))
+                return BadRequest(error: "Error when adding post into table. Please check owner Id");
+            
+            if (!_postCategoryRepository.Add(new PostCategory(postIn.Id, postInDto.CategoryId)))
+                return BadRequest(error: "Error when adding post category into table. Please check category Id");
 
-            Post post1 = new Post();
+            return Ok(postIn);
 
-            post1 = post;
-
-            if (postRepository.Add(post1))
-                return Ok(post1);
-
-            return BadRequest();
         }
 
         // PUT: api/posts/update
-        [HttpPost("{sId}")]
-        public IActionResult Update(string sId, [FromBody] Post post)
+        [HttpPost("{id}")]
+        public IActionResult Update(string id, [FromBody] Post postIn)
         {
+            if (!ModelState.IsValid || postIn == null) return BadRequest(error:"Post not valid or null");
 
-            Guid id = Guid.Parse(sId);
+            //Check if there exist a post with {id}
+            var post = _postRepository.GetById(Guid.Parse(id));
+            if (post == null) return NotFound("No such post with this id: "+id);
 
-            if (!ModelState.IsValid || post == null) return BadRequest();
+            //Update post
+            postIn.Id = post.Id;
+            if (_postRepository.Update(postIn))
+                return Ok(postIn);
 
-            var oldPost = postRepository.GetById(id);
-            if (oldPost == null) return NotFound();
-
-            post.Id = oldPost.Id;
-            if (postRepository.Update(post))
-                return Ok(post);
-            return BadRequest();
+            return BadRequest(error:"Error when updating post");
         }
 
         // DELETE: api/posts/delete/5
-        [HttpPost("{sId}")]
-        public IActionResult Delete(string sId)
+        [HttpPost("{id}")]
+        public IActionResult Delete(string id)
         {
-            Guid id = Guid.Parse(sId);
+            var post = _postRepository.GetById(Guid.Parse(id));
+            if (post == null) return NotFound("No such post with this id: " + id);
 
-            var post = postRepository.GetById(id);
-            if (post == null) return NotFound();
+            if (_postRepository.Delete(post))
+                return Ok("Post Deleted Successfully");
 
-            if (postRepository.Delete(post))
-                return Ok(post);
-            return BadRequest();
+            return BadRequest(error: "Error when updating post");
         }
     }
 }

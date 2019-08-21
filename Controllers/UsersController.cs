@@ -55,6 +55,14 @@ namespace Blog_Project.Controllers
             return x;
         }
 
+        //GET api/users/get
+        [HttpGet]
+        public ActionResult<List<User>> GetAllWithPosts()
+        {
+            var x = Ok(_userRepository.All().Include(u => u.Posts).ToList());
+            return x;
+        }
+
         //GET api/users/getById
         [HttpGet("{id}", Name = "GetCategory")]
         public ActionResult<User> Get(string id)

@@ -81,6 +81,7 @@ namespace Blog_Project.Services
             catch(Exception e)
             {
                 // TODO: Log Exceptions
+                Console.WriteLine(e);
                 return false;
             }
         }

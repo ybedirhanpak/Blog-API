@@ -9,7 +9,6 @@ namespace Blog_Project.Models
 {
     public class User
     {
-
         public User()
         {
             RegistrationDate = DateTime.Now;
@@ -25,8 +24,10 @@ namespace Blog_Project.Models
         [Required]
         public string UserName { get; set; }
 
+        [Required]
         public byte[] PasswordHash { get; set; }
 
+        [Required]
         public byte[] PasswordSalt { get; set; }
 
         public List<Post> Posts { get; set; }
