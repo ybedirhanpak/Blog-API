@@ -56,10 +56,10 @@ namespace Blog_Project.Controllers
                 return NotFound("No such post with this id: "+id);
             }
 
-            var prevPost = _postRepository.Where(p => p.SubmitDate < post.SubmitDate)
+            var prevPost = _postRepository.Where(p => p.OwnerId == post.OwnerId && p.SubmitDate < post.SubmitDate)
                 .FirstOrDefault();
 
-            var nextPost = _postRepository.Where(p => p.SubmitDate > post.SubmitDate)
+            var nextPost = _postRepository.Where(p => p.OwnerId == post.OwnerId && p.SubmitDate > post.SubmitDate)
                 .FirstOrDefault();
 
             var postOutDto = _mapper.Map<PostOutDto>(post);
@@ -106,6 +106,8 @@ namespace Blog_Project.Controllers
 
             //Update post
             postIn.Id = post.Id;
+            postIn.LastUpdateDate = DateTime.Now;
+
             if (_postRepository.Update(postIn))
                 return Ok(postIn);
 
