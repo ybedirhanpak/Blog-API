@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Blog_Project.Migrations
 {
     [DbContext(typeof(BlogDbContext))]
-    [Migration("20190821111335_initial")]
+    [Migration("20190821142217_initial")]
     partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -135,6 +135,9 @@ namespace Blog_Project.Migrations
                         .IsRequired();
 
                     b.Property<DateTime>("RegistrationDate");
+
+                    b.Property<string>("Role")
+                        .IsRequired();
 
                     b.Property<string>("Theme");
 

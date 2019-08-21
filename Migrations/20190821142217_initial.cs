@@ -32,6 +32,7 @@ namespace Blog_Project.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
+                    Role = table.Column<string>(nullable: false),
                     Email = table.Column<string>(nullable: false),
                     UserName = table.Column<string>(nullable: false),
                     PasswordHash = table.Column<byte[]>(nullable: false),
