@@ -11,9 +11,11 @@ namespace Blog_Project.Models
         [Key]
         public Guid Id { get; set; }
 
+        [Required]
         public Guid FollowerId { get; set; }
         public User Follower { get; set; }
-        
+
+        [Required]
         public Guid FollowedId { get; set; }
         public User Followed { get; set; }
     }

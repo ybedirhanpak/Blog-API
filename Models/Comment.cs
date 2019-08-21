@@ -10,20 +10,25 @@ namespace Blog_Project.Models
 
         public Comment()
         {
-            Date = DateTime.Now;
+            SubmitDate = DateTime.Now;
             Id = new Guid();
+            LikeCount = 0;
         }
 
         [Key]
         public Guid Id { get; set; }
 
+        [Required]
         public Guid OwnerId { get; set; }
         public User Owner { get; set; }
 
+        [Required]
         public Guid PostId { get; set; }
         public Post Post { get; set; }
 
-        public DateTime Date { get; set; }
+        [Required]
+        public DateTime SubmitDate { get; set; }
+        [Required]
         public string Content { get; set; }
         public int LikeCount { get; set; }
 

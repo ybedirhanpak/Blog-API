@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Blog_Project.Migrations
 {
     [DbContext(typeof(BlogDbContext))]
-    [Migration("20190820083521_category-user-update")]
-    partial class categoryuserupdate
+    [Migration("20190821111335_initial")]
+    partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -26,9 +26,11 @@ namespace Blog_Project.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("ImageUrl");
+                    b.Property<string>("ImageUrl")
+                        .IsRequired();
 
-                    b.Property<string>("Name");
+                    b.Property<string>("Name")
+                        .IsRequired();
 
                     b.Property<Guid?>("ParentId");
 
@@ -44,15 +46,16 @@ namespace Blog_Project.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("Content");
-
-                    b.Property<DateTime>("Date");
+                    b.Property<string>("Content")
+                        .IsRequired();
 
                     b.Property<int>("LikeCount");
 
                     b.Property<Guid>("OwnerId");
 
                     b.Property<Guid>("PostId");
+
+                    b.Property<DateTime>("SubmitDate");
 
                     b.HasKey("Id");
 
@@ -68,26 +71,21 @@ namespace Blog_Project.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("Content");
+                    b.Property<string>("Content")
+                        .IsRequired();
 
-                    b.Property<string>("LastUpdateDate");
-
-                    b.Property<Guid?>("NextPostId");
+                    b.Property<DateTime>("LastUpdateDate");
 
                     b.Property<Guid>("OwnerId");
 
-                    b.Property<Guid?>("PreviousPostId");
+                    b.Property<DateTime>("SubmitDate");
 
-                    b.Property<string>("SubmitDate");
-
-                    b.Property<string>("Title");
+                    b.Property<string>("Title")
+                        .IsRequired();
 
                     b.Property<int>("ViewCount");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("NextPostId")
-                        .IsUnique();
 
                     b.HasIndex("OwnerId");
 
@@ -130,9 +128,11 @@ namespace Blog_Project.Migrations
 
                     b.Property<string>("LinkedinLink");
 
-                    b.Property<byte[]>("PasswordHash");
+                    b.Property<byte[]>("PasswordHash")
+                        .IsRequired();
 
-                    b.Property<byte[]>("PasswordSalt");
+                    b.Property<byte[]>("PasswordSalt")
+                        .IsRequired();
 
                     b.Property<DateTime>("RegistrationDate");
 
@@ -224,10 +224,6 @@ namespace Blog_Project.Migrations
 
             modelBuilder.Entity("Blog_Project.Models.Post", b =>
                 {
-                    b.HasOne("Blog_Project.Models.Post", "PreviousPost")
-                        .WithOne("NextPost")
-                        .HasForeignKey("Blog_Project.Models.Post", "NextPostId");
-
                     b.HasOne("Blog_Project.Models.User", "Owner")
                         .WithMany("Posts")
                         .HasForeignKey("OwnerId")

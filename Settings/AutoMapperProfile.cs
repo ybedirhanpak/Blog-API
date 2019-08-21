@@ -13,10 +13,16 @@ namespace Blog_Project.Settings
 
         public AutoMapperProfile()
         {
-            CreateMap<User, UserInDto>();
+            //User
             CreateMap<UserInDto, User>();
-            CreateMap<Category, CategoryInDto>();
+
+            //Category
             CreateMap<CategoryInDto, Category>();
+
+            //Post
+            CreateMap<PostInDto, Post>();
+            CreateMap<Post, PostOutDto>();
+
         }
 
     }

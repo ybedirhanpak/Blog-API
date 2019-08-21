@@ -44,17 +44,22 @@ namespace Blog_Project.Controllers
                 return null;
             }
 
-            return Ok("Login Succesfull");
+            return Ok("Login Successful");
         }
-        
-        
-        
         
         //GET api/users/get
         [HttpGet]
         public ActionResult<List<User>> GetAll()
         {
             var x = Ok(_userRepository.All().ToList());
+            return x;
+        }
+
+        //GET api/users/get
+        [HttpGet]
+        public ActionResult<List<User>> GetAllWithPosts()
+        {
+            var x = Ok(_userRepository.All().Include(u => u.Posts).ToList());
             return x;
         }
 
