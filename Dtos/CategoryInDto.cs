@@ -7,9 +7,8 @@ namespace Blog_Project.Dtos
 {
     public class CategoryInDto
     {
-
         public string Name { get; set; }
         public string ImageUrl { get; set; }
-
+        public Guid? ParentId { get; set; }
     }
 }
