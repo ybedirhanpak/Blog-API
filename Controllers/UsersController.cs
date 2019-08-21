@@ -44,11 +44,8 @@ namespace Blog_Project.Controllers
                 return null;
             }
 
-            return Ok("Login Succesfull");
+            return Ok("Login Successful");
         }
-        
-        
-        
         
         //GET api/users/get
         [HttpGet]

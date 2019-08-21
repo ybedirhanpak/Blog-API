@@ -16,6 +16,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Npgsql.EntityFrameworkCore;
 using Blog_Project.Settings;
+using Newtonsoft.Json;
 
 namespace Blog_Project
 {
@@ -31,11 +32,19 @@ namespace Blog_Project
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
+            //Cors Policy
             services.AddCors();
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+            //Mvc settings
+            services.AddMvc()
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
+                .AddJsonOptions(options =>
+                options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
+
+            //Auto mapper
             services.AddAutoMapper(typeof(Startup));
 
+            //Entity framework
             services.AddEntityFrameworkNpgsql().AddDbContext<BlogDbContext>(
                 options => {
                     options.UseNpgsql(Configuration.GetConnectionString("CloudConnection"));
