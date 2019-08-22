@@ -42,5 +42,7 @@ namespace Blog_Project.Models
 
         public int ViewCount { get; set; }
 
+        //TODO ADD TAGS
+
     }
 }

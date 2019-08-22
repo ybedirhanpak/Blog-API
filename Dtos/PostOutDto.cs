@@ -13,6 +13,9 @@ namespace Blog_Project.Dtos
         public string Title { get; set; }
         public string Content { get; set; }
         public User Owner { get; set; }
+        public List<Comment> Comments { get; set; }
+        public List<PostCategory> RelatedCategories { get; set; }
+        public List<UserLikePost> LikedUsers { get; set; }
         public int ViewCount { get; set; }
         public DateTime SubmitDate { get; set; }
         public DateTime LastUpdateDate { get; set; }

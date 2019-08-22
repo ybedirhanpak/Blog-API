@@ -26,6 +26,8 @@ namespace Blog_Project.Settings
             CreateMap<PostInDto, Post>();
             CreateMap<Post, PostOutDto>();
             
+            //Comment
+            CreateMap<CommentCreateDto, Comment>();
         }
 
     }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Blog_Project.Dtos;
+using Blog_Project.Helpers;
 using Blog_Project.Models;
 using Blog_Project.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -47,7 +48,7 @@ namespace Blog_Project.Controllers
             //Check if there exists a category with given id
             if (categoryQueryable.FirstOrDefault() == null)
             {
-                return NotFound("No such category with this id: " + id);
+                return NotFound(new Message("No such category with this id: " + id));
             }
 
             if (parent)
@@ -73,12 +74,17 @@ namespace Blog_Project.Controllers
         {
             var categoryIn = _mapper.Map<Category>(categoryInDto);
 
+            if (_categoryRepository.Where(c => c.Name == categoryInDto.Name).Any())
+            {
+                return BadRequest(new Message("Category: " + categoryInDto.Name + " already exists."));
+            }
+
             if (_categoryRepository.Add(categoryIn))
             {
                 return categoryIn;
             }
 
-            return BadRequest(error:"Error when creating category");
+            return BadRequest(new Message("Error when creating category"));
         }
 
         [HttpPost]
@@ -91,7 +97,7 @@ namespace Blog_Project.Controllers
                 return Ok(userCategory);
             }
 
-            return BadRequest(error: "Error when adding user-category relation");
+            return BadRequest(new Message("Error when adding user-category relation"));
         }
 
         [HttpPost("{id}")]
@@ -103,7 +109,7 @@ namespace Blog_Project.Controllers
             var category = _categoryRepository.GetById(Guid.Parse(id));
             if (category == null)
             {
-                return NotFound("No such category with this id: " + id);
+                return NotFound(new Message("No such category with this id: " + id));
             }
 
             categoryIn.Id = Guid.Parse(id);
@@ -114,7 +120,7 @@ namespace Blog_Project.Controllers
                 return (categoryIn);
             }
 
-            return BadRequest(error: "Error when updating category");
+            return BadRequest(new Message("Error when updating category"));
         }
 
         // POST api/users/delete/id
@@ -126,15 +132,15 @@ namespace Blog_Project.Controllers
             //Check if there exists a category with given id
             if (categoryIn == null)
             {
-                return NotFound("No such category with this id: " + id);
+                return NotFound(new Message("No such category with this id: " + id));
             }
 
             if (_categoryRepository.Delete(categoryIn))
             {
-                return Ok("Category Deleted Successfully");
+                return Ok(new Message("Category Deleted Successfully"));
             }
 
-            return BadRequest(error: "Error when deleting category");
+            return BadRequest(new Message("Error when deleting category"));
         }
 
     }
