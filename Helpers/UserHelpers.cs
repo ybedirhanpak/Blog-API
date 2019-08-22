@@ -52,7 +52,7 @@ namespace Blog_Project.Helpers
             return true;
         }
 
-        public string GenerateToken(User user, AppSettings appSettings)
+        public static string GenerateToken(User user, AppSettings appSettings)
         {
             // authentication successful so generate jwt token
             var tokenHandler = new JwtSecurityTokenHandler();

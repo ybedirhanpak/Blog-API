@@ -7,24 +7,29 @@ using Blog_Project.Dtos;
 using Blog_Project.Helpers;
 using Blog_Project.Models;
 using Blog_Project.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Blog_Project.Controllers
 {
+    [Authorize(Roles = "User")]
     [Route("api/[controller]/[action]")]
     public class UsersController : ControllerBase
     {
         private readonly IRepository<User> _userRepository;
-
         private readonly IMapper _mapper;
+        private readonly AppSettings _appSettings;
 
-        public UsersController(IRepository<User> userRepository, IMapper mapper)
+        public UsersController(IRepository<User> userRepository, IMapper mapper, IOptions<AppSettings> appSettings)
         {
             this._userRepository = userRepository;
             this._mapper = mapper;
+            _appSettings = appSettings.Value;
         }
 
+        [AllowAnonymous]
         [HttpPost]
         public IActionResult Authenticate([FromBody]UserInDto userDto)
         {
@@ -44,10 +49,17 @@ namespace Blog_Project.Controllers
                 return null;
             }
 
-            return Ok("Login Successful");
+            return Ok(new
+            {
+                Id = user.Id,
+                Email = user.Email,
+                Username = user.UserName,
+                Token = UserHelpers.GenerateToken(user, _appSettings)
+            });
         }
-        
+
         //GET api/users/get
+        [AllowAnonymous]
         [HttpGet]
         public ActionResult<List<User>> GetAll()
         {
@@ -77,6 +89,7 @@ namespace Blog_Project.Controllers
         }
 
         // POST api/users/create
+        [AllowAnonymous]
         [HttpPost]
         public ActionResult<User> Create([FromBody]UserInDto userDto)
         {
@@ -102,8 +115,9 @@ namespace Blog_Project.Controllers
         }
 
         // POST api/users/update/id
+        [AllowAnonymous]
         [HttpPost("{id}")]
-        public ActionResult<User> Update(string id,[FromBody]UserInDto userDto)
+        public ActionResult<User> Update(string id, [FromBody]UserInDto userDto)
         {
             var userOld = _userRepository.GetById(Guid.Parse(id));
             if (userOld == null)
@@ -113,6 +127,9 @@ namespace Blog_Project.Controllers
 
             var userIn = _mapper.Map<User>(userDto);
             userIn.Id = Guid.Parse(id);
+
+            userIn.PasswordHash = userOld.PasswordHash;
+            userIn.PasswordSalt = userOld.PasswordSalt;
 
             if (_userRepository.Update(userIn))
             {
@@ -129,6 +146,20 @@ namespace Blog_Project.Controllers
             var userIn = _userRepository.GetById(Guid.Parse(id));
 
             if (userIn != null && _userRepository.Delete(userIn))
+            {
+                return Ok();
+            }
+            return BadRequest();
+
+        }
+
+        [HttpPost("{id}")]
+        public ActionResult<User> Deneme(string id)
+        {
+
+            var userIn = _userRepository.GetById(Guid.Parse(id));
+
+            if (true)
             {
                 return Ok();
             }
