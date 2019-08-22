@@ -55,6 +55,7 @@ namespace Blog_Project.Controllers
                 Email = user.Email,
                 Username = user.UserName,
                 Token = UserHelpers.GenerateToken(user, _appSettings)
+
             });
         }
 
