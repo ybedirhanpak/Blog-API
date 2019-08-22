@@ -15,22 +15,20 @@ using System.Security.Claims;
 
 namespace Blog_Project.Controllers
 {
-    [Authorize]
     [Route("api/[controller]/[action]")]
     public class UsersController : ControllerBase
     {
         private readonly IRepository<User> _userRepository;
         private readonly IMapper _mapper;
-        private readonly AppSettings _appSettings;
+        private readonly TokenSettings _tokenSettings;
 
-        public UsersController(IRepository<User> userRepository, IMapper mapper, IOptions<AppSettings> appSettings)
+        public UsersController(IRepository<User> userRepository, IMapper mapper, IOptions<TokenSettings> tokenSettings)
         {
             this._userRepository = userRepository;
             this._mapper = mapper;
-            _appSettings = appSettings.Value;
+            _tokenSettings = tokenSettings.Value;
         }
 
-        [AllowAnonymous]
         [HttpPost]
         public IActionResult Authenticate([FromBody]UserInDto userDto)
         {
@@ -55,13 +53,12 @@ namespace Blog_Project.Controllers
                 Id = user.Id,
                 Email = user.Email,
                 Username = user.UserName,
-                Token = UserHelpers.GenerateToken(user, _appSettings)
+                Token = UserHelpers.GenerateToken(user, _tokenSettings)
 
             });
         }
 
         //GET api/users/get
-        [AllowAnonymous]
         [HttpGet]
         public ActionResult<List<User>> GetAll()
         {
@@ -91,7 +88,6 @@ namespace Blog_Project.Controllers
         }
 
         // POST api/users/create
-        [AllowAnonymous]
         [HttpPost]
         public ActionResult<User> Create([FromBody]UserInDto userDto)
         {
@@ -119,7 +115,6 @@ namespace Blog_Project.Controllers
         }
 
         // POST api/users/update/id
-        [AllowAnonymous]
         [HttpPost("{id}")]
         public ActionResult<User> Update(string id, [FromBody]UserInDto userDto)
         {
@@ -156,24 +151,27 @@ namespace Blog_Project.Controllers
             return BadRequest();
 
         }
+
         [HttpGet("{id}")]
+        [Authorize]
         public ActionResult<User> Deneme(string id)
         {
-
             var userIn = _userRepository.GetById(Guid.Parse(id));
 
             var currentUser = HttpContext.User;
-            int spendingTimeWithCompany = 0;
-                
-            
 
-            if (true)
+            var claimList = currentUser.Claims.ToList();
+
+            if (currentUser.HasClaim(u => u.Type == "Id"))
             {
-                return Ok(currentUser);
+                var claim = currentUser.Claims.FirstOrDefault(u => u.Type == "Id");
+
+                var idX = claim.Value;
+
+                return Ok(new Message("Okay, "+ idX));
             }
 
-            return BadRequest();
-
+            return BadRequest(new Message("Fail"));
         }
     }
 }
