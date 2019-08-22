@@ -134,6 +134,9 @@ namespace Blog_Project.Migrations
 
                     b.Property<DateTime>("RegistrationDate");
 
+                    b.Property<string>("Role")
+                        .IsRequired();
+
                     b.Property<string>("Theme");
 
                     b.Property<string>("TwitterLink");
