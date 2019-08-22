@@ -11,10 +11,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using System.Security.Claims;
 
 namespace Blog_Project.Controllers
 {
-    [Authorize(Roles = "User")]
+    [Authorize]
     [Route("api/[controller]/[action]")]
     public class UsersController : ControllerBase
     {
@@ -102,6 +103,8 @@ namespace Blog_Project.Controllers
             userIn.PasswordHash = passwordHash;
             userIn.PasswordSalt = passwordSalt;
 
+            userIn.Role = "User";
+
             if (string.IsNullOrWhiteSpace(userDto.Password))
             {
                 throw new AppException("User not found");
@@ -153,17 +156,22 @@ namespace Blog_Project.Controllers
             return BadRequest();
 
         }
-
-        [HttpPost("{id}")]
+        [HttpGet("{id}")]
         public ActionResult<User> Deneme(string id)
         {
 
             var userIn = _userRepository.GetById(Guid.Parse(id));
 
+            var currentUser = HttpContext.User;
+            int spendingTimeWithCompany = 0;
+                
+            
+
             if (true)
             {
-                return Ok();
+                return Ok(currentUser);
             }
+
             return BadRequest();
 
         }
