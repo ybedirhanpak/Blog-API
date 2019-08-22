@@ -45,30 +45,33 @@ namespace Blog_Project
             //Auto mapper
             services.AddAutoMapper(typeof(Startup));
 
-            var appSettingsSection = Configuration.GetSection(nameof(AppSettings));
-            services.Configure<AppSettings>(appSettingsSection);
+            //Get token settings section in appsettings.json
+            var tokenSettingsSection = Configuration.GetSection(nameof(TokenSettings));
+            services.Configure<TokenSettings>(tokenSettingsSection);
 
             //Configure JWT
-            var appSettings = appSettingsSection.Get<AppSettings>();
-            var key = Encoding.ASCII.GetBytes(appSettings.Secret);
-            services.AddAuthentication(x =>
+            var tokenSettings = tokenSettingsSection.Get<TokenSettings>();
+            var key = Encoding.ASCII.GetBytes(tokenSettings.Secret);
+            var issuer = tokenSettings.Issuer;
+            var audience = tokenSettings.Audience;
+
+            services.AddAuthentication(options =>
             {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-            .AddJwtBearer(x =>
+            .AddJwtBearer(cfg =>
             {
-                x.RequireHttpsMetadata = false;
-                x.SaveToken = true;
-                x.TokenValidationParameters = new TokenValidationParameters
+                cfg.RequireHttpsMetadata = false;
+                cfg.SaveToken = true;
+                cfg.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = Configuration["Jwt:Issuer"],
-                    ValidAudience = Configuration["Jwt:Issuer"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidIssuer = issuer,
+                    ValidAudience = audience,
+                    ValidateIssuer = false,
+                    ValidateAudience = false
                 };
             });
 
@@ -96,11 +99,14 @@ namespace Blog_Project
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
-            app.UseMvc();
+            //Global cors policy
+            app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
             //Authentication
             app.UseAuthentication();
+
+            app.UseHttpsRedirection();
+            app.UseMvc();
         }
     }
 }

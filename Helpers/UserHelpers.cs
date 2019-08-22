@@ -52,19 +52,24 @@ namespace Blog_Project.Helpers
             return true;
         }
 
-        public static string GenerateToken(User user, AppSettings appSettings)
+        public static string GenerateToken(User user, TokenSettings tokenSettings)
         {
             // authentication successful so generate jwt token
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(appSettings.Secret);
+
+            var key = Encoding.ASCII.GetBytes(tokenSettings.Secret);
+            var expiryMinutes = tokenSettings.ExpiryMinutes;
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                     new Claim("Id", user.Id.ToString()),
-                    new Claim(ClaimTypes.Role, user.Role),
+                    new Claim("Email",user.Email),
+                    new Claim("Username",user.UserName), 
+                    new Claim(ClaimTypes.Role, user.Role)
                 }),
-                Expires = DateTime.UtcNow.AddDays(7),
+                Expires = DateTime.UtcNow.AddMinutes(expiryMinutes),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
