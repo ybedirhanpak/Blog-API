@@ -11,10 +11,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using System.Security.Claims;
 
 namespace Blog_Project.Controllers
 {
-    [Authorize(Roles = "User")]
+    [Authorize]
     [Route("api/[controller]/[action]")]
     public class UsersController : ControllerBase
     {
@@ -49,11 +50,13 @@ namespace Blog_Project.Controllers
                 return null;
             }
 
-            return Ok(new {
+            return Ok(new
+            {
                 Id = user.Id,
-                Email=user.Email,
-                Username=user.UserName,
-                Token=UserHelpers.GenerateToken(user,_appSettings)
+                Email = user.Email,
+                Username = user.UserName,
+                Token = UserHelpers.GenerateToken(user, _appSettings)
+
             });
         }
 
@@ -100,6 +103,8 @@ namespace Blog_Project.Controllers
             userIn.PasswordHash = passwordHash;
             userIn.PasswordSalt = passwordSalt;
 
+            userIn.Role = "User";
+
             if (string.IsNullOrWhiteSpace(userDto.Password))
             {
                 throw new AppException("User not found");
@@ -116,7 +121,7 @@ namespace Blog_Project.Controllers
         // POST api/users/update/id
         [AllowAnonymous]
         [HttpPost("{id}")]
-        public ActionResult<User> Update(string id,[FromBody]UserInDto userDto)
+        public ActionResult<User> Update(string id, [FromBody]UserInDto userDto)
         {
             var userOld = _userRepository.GetById(Guid.Parse(id));
             if (userOld == null)
@@ -127,7 +132,8 @@ namespace Blog_Project.Controllers
             var userIn = _mapper.Map<User>(userDto);
             userIn.Id = Guid.Parse(id);
 
-
+            userIn.PasswordHash = userOld.PasswordHash;
+            userIn.PasswordSalt = userOld.PasswordSalt;
 
             if (_userRepository.Update(userIn))
             {
@@ -150,17 +156,22 @@ namespace Blog_Project.Controllers
             return BadRequest();
 
         }
-
-        [HttpPost("{id}")]
+        [HttpGet("{id}")]
         public ActionResult<User> Deneme(string id)
         {
 
             var userIn = _userRepository.GetById(Guid.Parse(id));
 
+            var currentUser = HttpContext.User;
+            int spendingTimeWithCompany = 0;
+                
+            
+
             if (true)
             {
-                return Ok();
+                return Ok(currentUser);
             }
+
             return BadRequest();
 
         }

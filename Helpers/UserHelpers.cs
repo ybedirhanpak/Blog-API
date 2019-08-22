@@ -62,7 +62,7 @@ namespace Blog_Project.Helpers
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                     new Claim("Id", user.Id.ToString()),
-                    new Claim(ClaimTypes.Role, "User"),
+                    new Claim(ClaimTypes.Role, user.Role),
                 }),
                 Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
