@@ -7,10 +7,10 @@ namespace Blog_Project.Models
 {
     public class Comment
     {
-
         public Comment()
         {
             SubmitDate = DateTime.Now;
+            LastEditTime = SubmitDate;
             Id = new Guid();
             LikeCount = 0;
         }
@@ -28,8 +28,12 @@ namespace Blog_Project.Models
 
         [Required]
         public DateTime SubmitDate { get; set; }
+
+        public DateTime LastEditTime { get; set; }
+
         [Required]
         public string Content { get; set; }
+
         public int LikeCount { get; set; }
 
     }

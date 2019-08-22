@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Blog_Project.Dtos;
+using Blog_Project.Helpers;
 using Blog_Project.Models;
 using Blog_Project.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -60,7 +61,7 @@ namespace Blog_Project.Controllers
             //Check if there exists a category with given id
             if (postQueryable.FirstOrDefault() == null)
             {
-                return NotFound("No such post with this id: " + id);
+                return NotFound(new Message("No such post with this id: " + id));
             }
 
             if (owner)
@@ -104,16 +105,16 @@ namespace Blog_Project.Controllers
         public IActionResult Create([FromBody] PostInDto postInDto)
         {
 
-            if (!ModelState.IsValid || postInDto == null) return BadRequest(error:"Post not valid or null");
+            if (!ModelState.IsValid || postInDto == null) return BadRequest(new Message("Post not valid or null"));
 
             var postIn = _mapper.Map<Post>(postInDto);
 
             //Update previous post, current post and owner.
             if (!_postRepository.Add(postIn))
-                return BadRequest(error: "Error when adding post into table. Please check owner Id");
+                return BadRequest(new Message("Error when adding post into table. Please check owner Id"));
             
             if (!_postCategoryRepository.Add(new PostCategory(postIn.Id, postInDto.CategoryId)))
-                return BadRequest(error: "Error when adding post category into table. Please check category Id");
+                return BadRequest(new Message("Error when adding post category into table. Please check category Id"));
 
             return Ok(postIn);
 
@@ -123,11 +124,11 @@ namespace Blog_Project.Controllers
         [HttpPost("{id}")]
         public IActionResult Update(string id, [FromBody] Post postIn)
         {
-            if (!ModelState.IsValid || postIn == null) return BadRequest(error:"Post not valid or null");
+            if (!ModelState.IsValid || postIn == null) return BadRequest(new Message("Post not valid or null"));
 
             //Check if there exist a post with {id}
             var post = _postRepository.GetById(Guid.Parse(id));
-            if (post == null) return NotFound("No such post with this id: "+id);
+            if (post == null) return NotFound(new Message("No such post with this id: " + id));
 
             //Update post
             postIn.Id = post.Id;
@@ -136,7 +137,7 @@ namespace Blog_Project.Controllers
             if (_postRepository.Update(postIn))
                 return Ok(postIn);
 
-            return BadRequest(error:"Error when updating post");
+            return BadRequest(new Message("Error when updating post"));
         }
 
         // DELETE: api/posts/delete/5
@@ -144,12 +145,12 @@ namespace Blog_Project.Controllers
         public IActionResult Delete(string id)
         {
             var post = _postRepository.GetById(Guid.Parse(id));
-            if (post == null) return NotFound("No such post with this id: " + id);
+            if (post == null) return NotFound(new Message("No such post with this id: " + id));
 
             if (_postRepository.Delete(post))
-                return Ok("Post Deleted Successfully");
+                return Ok(new Message("Post Deleted Successfully"));
 
-            return BadRequest(error: "Error when updating post");
+            return BadRequest(new Message("Error when updating post"));
         }
     }
 }
