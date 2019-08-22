@@ -12,11 +12,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Npgsql.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Blog_Project.Settings;
 using Newtonsoft.Json;
+using Blog_Project.Helpers;
+using System.Text;
 
 namespace Blog_Project
 {
@@ -43,6 +44,30 @@ namespace Blog_Project
 
             //Auto mapper
             services.AddAutoMapper(typeof(Startup));
+
+            var appSettingsSection = Configuration.GetSection(nameof(AppSettings));
+            services.Configure<AppSettings>(appSettingsSection);
+
+            //Configure JWT
+            var appSettings = appSettingsSection.Get<AppSettings>();
+            var key = Encoding.ASCII.GetBytes(appSettings.Secret);
+            services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(x =>
+            {
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = true;
+                x.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            });
 
             //Entity framework
             services.AddEntityFrameworkNpgsql().AddDbContext<BlogDbContext>(

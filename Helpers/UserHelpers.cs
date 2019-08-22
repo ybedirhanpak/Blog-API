@@ -52,7 +52,7 @@ namespace Blog_Project.Helpers
             return true;
         }
 
-        public string GenerateToken(User user, AppSettings appSettings)
+        public static string GenerateToken(User user, AppSettings appSettings)
         {
             // authentication successful so generate jwt token
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -61,8 +61,8 @@ namespace Blog_Project.Helpers
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.Name, user.Id.ToString()),
-                    
+                    new Claim("Id", user.Id.ToString()),
+                    new Claim(ClaimTypes.Role, "User"),
                 }),
                 Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -74,5 +74,6 @@ namespace Blog_Project.Helpers
             return tokenString;
 
         }
+
     }
 }
