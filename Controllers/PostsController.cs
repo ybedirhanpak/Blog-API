@@ -58,7 +58,7 @@ namespace Blog_Project.Controllers
             //Initialize a queryable object for further include operations.
             var postQueryable = _postRepository.Where(p => p.Id == Guid.Parse(id));
 
-            //Check if there exists a category with given id
+            //Check if there exists a post with given id
             if (postQueryable.FirstOrDefault() == null)
             {
                 return NotFound(new Message("No such post with this id: " + id));

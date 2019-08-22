@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Blog_Project.Dtos;
+using Blog_Project.Dtos.Dtos.UserDtos;
+using Blog_Project.Dtos.UserDtos;
 using Blog_Project.Models;
 
 namespace Blog_Project.Settings
@@ -14,7 +16,10 @@ namespace Blog_Project.Settings
         public AutoMapperProfile()
         {
             //User
-            CreateMap<UserInDto, User>();
+            CreateMap<UserCreateDto, User>();
+            CreateMap<User, UserAuthenticatedDto>();
+            CreateMap<UserUpdateDto, User>();
+            CreateMap<User, UserOutDto>();
 
             //Category
             CreateMap<CategoryInDto, Category>();

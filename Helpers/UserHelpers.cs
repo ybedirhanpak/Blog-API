@@ -80,5 +80,17 @@ namespace Blog_Project.Helpers
 
         }
 
+        public static bool IsAdmin(ClaimsPrincipal tokenUser)
+        {
+            return tokenUser.HasClaim(u => u.Type == ClaimTypes.Role) &&
+                   tokenUser.Claims.FirstOrDefault(u => u.Type == ClaimTypes.Role)?.Value == Role.Admin;
+        }
+
+        public static bool IsAuthorizedUser(ClaimsPrincipal tokenUser, string id)
+        {
+            return tokenUser.HasClaim(u => u.Type == "Id") &&
+                   tokenUser.Claims.FirstOrDefault(u => u.Type == "Id")?.Value == id;
+        }
+
     }
 }
