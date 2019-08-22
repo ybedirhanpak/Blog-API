@@ -7,6 +7,7 @@ using Blog_Project.Dtos;
 using Blog_Project.Models;
 using Blog_Project.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Blog_Project.Controllers
 {
@@ -16,11 +17,14 @@ namespace Blog_Project.Controllers
     {
         private readonly IRepository<Category> _categoryRepository;
 
+        private readonly IRepository<UserCategory> _userCategoryRepository;
+
         private readonly IMapper _mapper;
 
-        public CategoriesController(IRepository<Category> categoryRepository, IMapper mapper)
+        public CategoriesController(IRepository<Category> categoryRepository, IRepository<UserCategory> userCategoryRepository, IMapper mapper)
         {
             _categoryRepository = categoryRepository;
+            _userCategoryRepository = userCategoryRepository;
             _mapper = mapper;
         }
 
@@ -31,17 +35,39 @@ namespace Blog_Project.Controllers
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Category> Get(string id)
+        public ActionResult<Category> Get(string id,
+            [FromQuery] bool parent, 
+            [FromQuery] bool children,
+            [FromQuery] bool post,
+            [FromQuery] bool user)
         {
-            var category = _categoryRepository.GetById(Guid.Parse(id));
-            if (category == null)
+            //Initialize a queryable object for further include operations.
+            var categoryQueryable = _categoryRepository.Where(c => c.Id == Guid.Parse(id));
+
+            //Check if there exists a category with given id
+            if (categoryQueryable.FirstOrDefault() == null)
             {
-                return NotFound();
+                return NotFound("No such category with this id: " + id);
             }
+
+            if (parent)
+                categoryQueryable = categoryQueryable.Include(c => c.Parent);
+
+            if (children)
+                categoryQueryable = categoryQueryable.Include(c => c.Children);
+
+            if (post)
+                categoryQueryable = categoryQueryable.Include(c => c.RelatedPosts);
+
+            if (user)
+                categoryQueryable = categoryQueryable.Include(c => c.FollowerUsers);
+
+            //Get the category object
+            var category = categoryQueryable.FirstOrDefault();
 
             return Ok(category);
         }
-        
+
         [HttpPost]
         public ActionResult<Category> Create([FromBody] CategoryInDto categoryInDto)
         {
@@ -52,25 +78,43 @@ namespace Blog_Project.Controllers
                 return categoryIn;
             }
 
-            return BadRequest();
+            return BadRequest(error:"Error when creating category");
+        }
+
+        [HttpPost]
+        public ActionResult<Category> AddUser([FromBody] UserCategoryDto userCategoryDto)
+        {
+            var userCategory = _mapper.Map<UserCategory>(userCategoryDto);
+
+            if (_userCategoryRepository.Add(userCategory))
+            {
+                return Ok(userCategory);
+            }
+
+            return BadRequest(error: "Error when adding user-category relation");
         }
 
         [HttpPost("{id}")]
-        public ActionResult<Category> Update(string id, [FromBody] Category categoryIn)
+        public ActionResult<Category> Update(string id, [FromBody] CategoryInDto categoryInDto)
         {
-            var categoryOld = _categoryRepository.GetById(Guid.Parse(id));
-            if (categoryOld == null)
+            var categoryIn = _mapper.Map<Category>(categoryInDto);
+
+            //Check if there exists a category with given id
+            var category = _categoryRepository.GetById(Guid.Parse(id));
+            if (category == null)
             {
-                return NotFound();
+                return NotFound("No such category with this id: " + id);
             }
 
             categoryIn.Id = Guid.Parse(id);
 
+            //Update category
             if (_categoryRepository.Update(categoryIn))
             {
                 return (categoryIn);
             }
-            return BadRequest();
+
+            return BadRequest(error: "Error when updating category");
         }
 
         // POST api/users/delete/id
@@ -79,11 +123,18 @@ namespace Blog_Project.Controllers
         {
             var categoryIn = _categoryRepository.GetById(Guid.Parse(id));
 
-            if (categoryIn != null && _categoryRepository.Delete(categoryIn))
+            //Check if there exists a category with given id
+            if (categoryIn == null)
             {
-                return Ok();
+                return NotFound("No such category with this id: " + id);
             }
-            return BadRequest();
+
+            if (_categoryRepository.Delete(categoryIn))
+            {
+                return Ok("Category Deleted Successfully");
+            }
+
+            return BadRequest(error: "Error when deleting category");
         }
 
     }

@@ -47,21 +47,46 @@ namespace Blog_Project.Controllers
          * GET: api/posts/get/{id}
          */
         [HttpGet("{id}")]
-        public ActionResult<Post> Get(string id)
+        public ActionResult<Post> Get(string id,
+            [FromQuery] bool owner,
+            [FromQuery] bool comment,
+            [FromQuery] bool category,
+            [FromQuery] bool like)
         {
-            var post = _postRepository.GetById(Guid.Parse(id));
 
-            if (post == null)
+            //Initialize a queryable object for further include operations.
+            var postQueryable = _postRepository.Where(p => p.Id == Guid.Parse(id));
+
+            //Check if there exists a category with given id
+            if (postQueryable.FirstOrDefault() == null)
             {
-                return NotFound("No such post with this id: "+id);
+                return NotFound("No such post with this id: " + id);
             }
 
-            var prevPost = _postRepository.Where(p => p.SubmitDate < post.SubmitDate)
+            if (owner)
+                postQueryable = postQueryable.Include(p => p.Owner);
+
+            if (comment)
+                postQueryable = postQueryable.Include(p => p.Comments);
+
+            if (category)
+                postQueryable = postQueryable.Include(p => p.RelatedCategories);
+
+            if (like)
+                postQueryable = postQueryable.Include(p => p.LikedUsers);
+
+            //Get the post object
+            var post = postQueryable.FirstOrDefault();
+
+            //Find previous post with submit date
+            var prevPost = _postRepository.Where(p => p.OwnerId == post.OwnerId && p.SubmitDate < post.SubmitDate)
                 .FirstOrDefault();
 
-            var nextPost = _postRepository.Where(p => p.SubmitDate > post.SubmitDate)
+            //Find next post with submit date
+            var nextPost = _postRepository.Where(p => p.OwnerId == post.OwnerId && p.SubmitDate > post.SubmitDate)
                 .FirstOrDefault();
 
+            //Prepare post dto
             var postOutDto = _mapper.Map<PostOutDto>(post);
             postOutDto.PreviousPost = prevPost;
             postOutDto.NextPost = nextPost;
@@ -106,6 +131,8 @@ namespace Blog_Project.Controllers
 
             //Update post
             postIn.Id = post.Id;
+            postIn.LastUpdateDate = DateTime.Now;
+
             if (_postRepository.Update(postIn))
                 return Ok(postIn);
 

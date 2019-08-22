@@ -19,10 +19,13 @@ namespace Blog_Project.Settings
             //Category
             CreateMap<CategoryInDto, Category>();
 
+            //User-Category
+            CreateMap<UserCategoryDto, UserCategory>();
+
             //Post
             CreateMap<PostInDto, Post>();
             CreateMap<Post, PostOutDto>();
-
+            
         }
 
     }

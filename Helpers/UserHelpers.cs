@@ -52,11 +52,11 @@ namespace Blog_Project.Helpers
             return true;
         }
 
-        public static string GenerateToken(User user, AppSettings _appSettings)
+        public static string GenerateToken(User user, AppSettings appSettings)
         {
             // authentication successful so generate jwt token
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
+            var key = Encoding.ASCII.GetBytes(appSettings.Secret);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new Claim[]

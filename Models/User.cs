@@ -19,6 +19,9 @@ namespace Blog_Project.Models
         public Guid Id { get; set; }
 
         [Required]
+        public string Role { get; set; }
+
+        [Required]
         public string Email { get; set; }
 
         [Required]
