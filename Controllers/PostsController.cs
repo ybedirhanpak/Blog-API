@@ -7,11 +7,13 @@ using Blog_Project.Dtos;
 using Blog_Project.Helpers;
 using Blog_Project.Models;
 using Blog_Project.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Blog_Project.Controllers
 {
+    [Authorize]
     [Route("api/[controller]/[action]")]
     [ApiController]
     public class PostsController : ControllerBase
@@ -39,7 +41,14 @@ namespace Blog_Project.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            return Ok(_postRepository.All());
+            //Check if token is given by admin
+            var tokenUser = HttpContext.User;
+            if (AuthorizationHelpers.IsAdmin(tokenUser))
+            {
+                return Ok(_postRepository.All());
+            }
+
+            return BadRequest(new Message("Unauthorized user."));
         }
 
         /**
@@ -58,10 +67,19 @@ namespace Blog_Project.Controllers
             //Initialize a queryable object for further include operations.
             var postQueryable = _postRepository.Where(p => p.Id == Guid.Parse(id));
 
+            var rawPost = postQueryable.FirstOrDefault();
+
             //Check if there exists a post with given id
-            if (postQueryable.FirstOrDefault() == null)
+            if (rawPost == null)
             {
                 return NotFound(new Message("No such post with this id: " + id));
+            }
+
+            //Check if token is given by admin or owner of the post
+            var tokenUser = HttpContext.User;
+            if (!AuthorizationHelpers.IsAdmin(tokenUser) && !AuthorizationHelpers.IsAuthorizedUser(tokenUser, rawPost.OwnerId.ToString()))
+            {
+                return BadRequest(new Message("Unauthorized user."));
             }
 
             if (owner)

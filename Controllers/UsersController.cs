@@ -45,14 +45,16 @@ namespace Blog_Project.Controllers
 
             User user = null;
 
-            if(!string.IsNullOrEmpty(userInDto.Email))
+            if (!string.IsNullOrEmpty(userInDto.Email) && !string.IsNullOrEmpty(userInDto.UserName))
+                user = _userRepository.Where(u => u.Email == userInDto.Email && u.UserName == userInDto.UserName).FirstOrDefault();
+            else if (!string.IsNullOrEmpty(userInDto.Email))
                 user = _userRepository.Where(u => u.Email == userInDto.Email).FirstOrDefault();
             else if(!string.IsNullOrEmpty(userInDto.UserName))
                 user = _userRepository.Where(u => u.UserName == userInDto.UserName).FirstOrDefault();
 
             // Check if user exists
             if (user == null)
-                return BadRequest(new Message("User not found."));
+                return BadRequest(new Message("User not found. Please check your email and/or username."));
 
             if (!UserHelpers.VerifyPasswordHash(userInDto.Password, user.PasswordHash, user.PasswordSalt))
             {
@@ -118,14 +120,13 @@ namespace Blog_Project.Controllers
         {
             //Check if token is given by admin
             var tokenUser = HttpContext.User;
-            if (!tokenUser.HasClaim(u => u.Type == ClaimTypes.Role) || tokenUser.Claims.FirstOrDefault(u => u.Type == ClaimTypes.Role)?.Value != Role.Admin)
+            if (AuthorizationHelpers.IsAdmin(tokenUser))
             {
-                return BadRequest(new Message("Unauthorized user."));
+                return Ok(_userRepository.All().ToList());
             }
 
-            return Ok(_userRepository.All().ToList());
+            return BadRequest(new Message("Unauthorized user."));
         }
-
 
         //GET api/users/get
         [HttpGet("{id}")]
@@ -139,7 +140,7 @@ namespace Blog_Project.Controllers
             //Check if token is given by admin or authorized user
             var tokenUser = HttpContext.User;
 
-            if (!UserHelpers.IsAdmin(tokenUser) && !UserHelpers.IsAuthorizedUser(tokenUser, id))
+            if (!AuthorizationHelpers.IsAdmin(tokenUser) && !AuthorizationHelpers.IsAuthorizedUser(tokenUser, id))
             {
                 return BadRequest(new Message("Unauthorized user."));
             }
@@ -190,7 +191,7 @@ namespace Blog_Project.Controllers
             //Check if token is given by admin or authorized user
             var tokenUser = HttpContext.User;
 
-            if (!UserHelpers.IsAdmin(tokenUser) && !UserHelpers.IsAuthorizedUser(tokenUser,id))
+            if (!AuthorizationHelpers.IsAdmin(tokenUser) && !AuthorizationHelpers.IsAuthorizedUser(tokenUser,id))
             {
                 return BadRequest(new Message("Unauthorized user."));
             }
@@ -238,21 +239,21 @@ namespace Blog_Project.Controllers
             //Check if token is given by admin or authorized user
             var tokenUser = HttpContext.User;
 
-            if (!UserHelpers.IsAdmin(tokenUser) && !UserHelpers.IsAuthorizedUser(tokenUser, id))
+            if (!AuthorizationHelpers.IsAdmin(tokenUser) && !AuthorizationHelpers.IsAuthorizedUser(tokenUser, id))
             {
                 return BadRequest(new Message("Unauthorized user."));
             }
 
             var userIn = _userRepository.GetById(Guid.Parse(id));
 
-            if (userIn != null)
+            if (userIn == null)
             {
                 return BadRequest(new Message("No such user with this id: " + id));
             }
 
             if (_userRepository.Delete(userIn))
             {
-                return Ok(new Message("User with id: " + id + " deleted successfully"));
+                return Ok(new Message("User with email: " + userIn.Email + ", id: " + id + " deleted successfully"));
             }
 
             return BadRequest(new Message("Error when deleting user."));
