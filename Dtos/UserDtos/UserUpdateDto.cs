@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Blog_Project.Dtos.Dtos.UserDtos
+namespace Blog_Project.Dtos.UserDtos
 {
     public class UserUpdateDto
     {

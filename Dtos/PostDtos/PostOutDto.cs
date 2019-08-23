@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Blog_Project.Models;
 
-namespace Blog_Project.Dtos
+namespace Blog_Project.Dtos.PostDtos
 {
     public class PostOutDto
     {

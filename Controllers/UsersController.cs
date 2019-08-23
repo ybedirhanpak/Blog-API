@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
-using Blog_Project.Dtos.Dtos.UserDtos;
 using Blog_Project.Dtos.UserDtos;
 
 namespace Blog_Project.Controllers
