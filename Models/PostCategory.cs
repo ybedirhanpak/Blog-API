@@ -13,6 +13,7 @@ namespace Blog_Project.Models
         {
             PostId = postId;
             CategoryId = categoryId;
+
         }
 
         [Key]

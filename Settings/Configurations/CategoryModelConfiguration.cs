@@ -13,7 +13,7 @@ namespace Blog_Project.Settings.Configurations
         public void Configure(EntityTypeBuilder<Category> builder)
         {
             builder.HasOne(c => c.Parent)
-                .WithMany(c => c.Children)
+                .WithMany(mc => mc.SubCategories)
                 .HasForeignKey(c => c.ParentId);
         }
 

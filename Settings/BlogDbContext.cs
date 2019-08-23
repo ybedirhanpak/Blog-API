@@ -33,6 +33,7 @@ namespace Blog_Project.Settings
         DbSet<User> Users { get; set; }
         DbSet<UserFollow> UserFollows { get; set; }
         DbSet<Comment> Comments { get; set; }
+        DbSet<MainCategory> MainCategories { get; set; }
         DbSet<Category> Categories { get; set; }
 
         

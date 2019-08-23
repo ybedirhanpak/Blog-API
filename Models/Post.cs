@@ -15,6 +15,7 @@ namespace Blog_Project.Models
             SubmitDate = DateTime.Now;
             LastUpdateDate = SubmitDate;
             ViewCount = 0;
+            IsDeleted = false;
         }
 
         public Guid Id { get; set; }
@@ -42,7 +43,8 @@ namespace Blog_Project.Models
 
         public int ViewCount { get; set; }
 
-        //TODO ADD TAGS
-
+        public bool IsDeleted { get; set; }
+        
+        public string[] Tags { get; set; }
     }
 }

@@ -13,6 +13,7 @@ namespace Blog_Project.Models
             LastEditTime = SubmitDate;
             Id = new Guid();
             LikeCount = 0;
+            IsDeleted = false;
         }
 
         [Key]
@@ -36,6 +37,7 @@ namespace Blog_Project.Models
 
         public int LikeCount { get; set; }
 
+        public bool IsDeleted { get; set; }
     }
 
 }

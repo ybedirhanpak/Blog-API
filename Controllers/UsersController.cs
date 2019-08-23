@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
 using Blog_Project.Dtos.UserDtos;
+using Blog_Project.Settings;
 
 namespace Blog_Project.Controllers
 {
@@ -90,8 +91,6 @@ namespace Blog_Project.Controllers
             //Check if password is valid.
             if (string.IsNullOrWhiteSpace(userInDto.Password))
                 return BadRequest(new Message("Password is invalid."));
-
-
 
             UserHelpers.CreatePasswordHash(userInDto.Password, out var passwordHash, out var passwordSalt);
 
@@ -243,19 +242,32 @@ namespace Blog_Project.Controllers
                 return BadRequest(new Message("Unauthorized user."));
             }
 
-            var userIn = _userRepository.GetById(Guid.Parse(id));
+            var userQueryable = _userRepository.Where(u => u.Id == Guid.Parse(id));
 
-            if (userIn == null)
+            userQueryable = userQueryable.Include(u => u.Posts.FindAll(p => p.IsDeleted == false));
+
+            var user = userQueryable.FirstOrDefault();
+
+            if (user == null)
             {
                 return BadRequest(new Message("No such user with this id: " + id));
             }
 
-            if (_userRepository.Delete(userIn))
+            user.IsDeleted = true;
+
+            foreach (var post in user.Posts)
             {
-                return Ok(new Message("User with email: " + userIn.Email + ", id: " + id + " deleted successfully"));
+                post.IsDeleted = true;
             }
 
-            return BadRequest(new Message("Error when deleting user."));
+            //TODO UPDATE POST REPOSITORY
+
+            if (_userRepository.Update(user))
+            {
+                return Ok(new Message("User with email: " + user.Email + ", id: " + id + " deleted successfully"));
+            }
+
+            return BadRequest(new Message("Error when deleting user with id: "+ id));
 
         }
 

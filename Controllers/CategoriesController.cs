@@ -32,13 +32,20 @@ namespace Blog_Project.Controllers
         [HttpGet]
         public ActionResult<List<Category>> GetAll()
         {
+            //Check if request is sent by admin
+            var tokenUser = HttpContext.User;
+
+            if (!AuthorizationHelpers.IsAdmin(tokenUser))
+            {
+                return BadRequest("Unauthorized User.");
+            }
+
             return _categoryRepository.All().OrderBy(c => c.Name).ToList();
         }
 
         [HttpGet("{id}")]
         public ActionResult<Category> Get(string id,
-            [FromQuery] bool parent, 
-            [FromQuery] bool children,
+            [FromQuery] bool parent,
             [FromQuery] bool post,
             [FromQuery] bool user)
         {
@@ -53,9 +60,6 @@ namespace Blog_Project.Controllers
 
             if (parent)
                 categoryQueryable = categoryQueryable.Include(c => c.Parent);
-
-            if (children)
-                categoryQueryable = categoryQueryable.Include(c => c.Children);
 
             if (post)
                 categoryQueryable = categoryQueryable.Include(c => c.RelatedPosts);
@@ -127,20 +131,22 @@ namespace Blog_Project.Controllers
         [HttpPost("{id}")]
         public ActionResult<User> Delete(string id)
         {
-            var categoryIn = _categoryRepository.GetById(Guid.Parse(id));
+            var category = _categoryRepository.GetById(Guid.Parse(id));
 
             //Check if there exists a category with given id
-            if (categoryIn == null)
+            if (category == null)
             {
                 return NotFound(new Message("No such category with this id: " + id));
             }
 
-            if (_categoryRepository.Delete(categoryIn))
+            category.IsDeleted = true;
+
+            if (_categoryRepository.Update(category))
             {
-                return Ok(new Message("Category Deleted Successfully"));
+                return Ok(new Message("Category with name: "+ category.Name +" and id: "+ category.Id +"Deleted Successfully"));
             }
 
-            return BadRequest(new Message("Error when deleting category"));
+            return BadRequest(new Message("Error when deleting category with id: "+ id));
         }
 
     }

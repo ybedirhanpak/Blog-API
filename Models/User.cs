@@ -13,6 +13,7 @@ namespace Blog_Project.Models
         {
             RegistrationDate = DateTime.Now;
             Id = new Guid();
+            IsDeleted = false;
         }
 
         [Key]
@@ -59,5 +60,7 @@ namespace Blog_Project.Models
         public string InstagramLink { get; set; }
 
         public string LinkedinLink { get; set; }
+
+        public bool IsDeleted { get; set; }
     }
 }

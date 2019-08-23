@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Blog_Project.Models
 {
-    public class Category
+    public class MainCategory
     {
-        public Category()
+        public MainCategory()
         {
             Id = new Guid();
             IsDeleted = false;
@@ -19,15 +19,7 @@ namespace Blog_Project.Models
         [Required]
         public string Name { get; set; }
 
-        [Required]
-        public string ImageUrl { get; set; }
-
-        public List<PostCategory> RelatedPosts { get; set; }
-
-        public Guid? ParentId { get; set; }
-        public MainCategory Parent { get; set; }
-
-        public List<UserCategory> FollowerUsers { get; set; }
+        public List<Category> SubCategories { get; set; }
 
         public bool IsDeleted { get; set; }
     }
