@@ -3,15 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Blog_Project.Dtos
+namespace Blog_Project.Dtos.Dtos.UserDtos
 {
-    public class UserInDto
-    { 
-        public string Email { get; set; }
-
+    public class UserUpdateDto
+    {
         public string Password { get; set; }
-
-        public string UserName { get; set; }
 
         public string BirthDate { get; set; }
 
@@ -26,6 +22,5 @@ namespace Blog_Project.Dtos
         public string InstagramLink { get; set; }
 
         public string LinkedinLink { get; set; }
-
     }
 }

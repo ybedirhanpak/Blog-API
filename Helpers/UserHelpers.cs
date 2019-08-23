@@ -79,6 +79,5 @@ namespace Blog_Project.Helpers
             return tokenString;
 
         }
-
     }
 }
