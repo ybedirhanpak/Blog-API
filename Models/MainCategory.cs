@@ -10,11 +10,11 @@ namespace Blog_Project.Models
     {
         public MainCategory()
         {
-            Id = new Guid();
+            Id = Guid.NewGuid().ToString();
             IsDeleted = false;
         }
 
-        public Guid Id { get; set; }
+        public string Id { get; set; }
 
         [Required]
         public string Name { get; set; }

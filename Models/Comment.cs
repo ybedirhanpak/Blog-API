@@ -11,20 +11,20 @@ namespace Blog_Project.Models
         {
             SubmitDate = DateTime.Now;
             LastEditTime = SubmitDate;
-            Id = new Guid();
+            Id = Guid.NewGuid().ToString();
             LikeCount = 0;
             IsDeleted = false;
         }
 
         [Key]
-        public Guid Id { get; set; }
+        public string Id { get; set; }
 
         [Required]
-        public Guid OwnerId { get; set; }
+        public string OwnerId { get; set; }
         public User Owner { get; set; }
 
         [Required]
-        public Guid PostId { get; set; }
+        public string PostId { get; set; }
         public Post Post { get; set; }
 
         [Required]

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Blog_Project.Controllers
+namespace Blog_Project.Dtos.CommentDtos
 {
     public class CommentUpdateDto
     {

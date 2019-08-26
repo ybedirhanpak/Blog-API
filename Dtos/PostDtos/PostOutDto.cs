@@ -2,24 +2,26 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Blog_Project.Dtos.CommentDtos;
+using Blog_Project.Dtos.UserDtos;
 using Blog_Project.Models;
 
 namespace Blog_Project.Dtos.PostDtos
 {
     public class PostOutDto
     {
-        public Guid Id { get; set; }
-        public Guid OwnerId { get; set; }
+        public string Id { get; set; }
+        public string OwnerId { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
-        public User Owner { get; set; }
-        public List<Comment> Comments { get; set; }
-        public List<PostCategory> RelatedCategories { get; set; }
-        public List<UserLikePost> LikedUsers { get; set; }
+        public UserOutDto Owner { get; set; }
+        public List<CommentOutDto> Comments { get; set; }
+        public List<PostCategoryOutDto> RelatedCategories { get; set; }
+        public List<UserLikePostOutDto> LikedUsers { get; set; }
         public int ViewCount { get; set; }
         public DateTime SubmitDate { get; set; }
         public DateTime LastUpdateDate { get; set; }
-        public Post PreviousPost { get; set; }
-        public Post NextPost { get; set; }
+        public PostOutDto PreviousPost { get; set; }
+        public PostOutDto NextPost { get; set; }
     }
 }

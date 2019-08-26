@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Blog_Project.Models
+namespace Blog_Project.Helpers
 {
     public class Role
     {

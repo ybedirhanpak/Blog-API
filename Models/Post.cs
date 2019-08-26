@@ -11,17 +11,17 @@ namespace Blog_Project.Models
 
         public Post()
         {
-            Id = Guid.NewGuid();
+            Id = Guid.NewGuid().ToString();
             SubmitDate = DateTime.Now;
             LastUpdateDate = SubmitDate;
             ViewCount = 0;
             IsDeleted = false;
         }
 
-        public Guid Id { get; set; }
+        public string Id { get; set; }
 
         [Required]
-        public Guid OwnerId { get; set; }
+        public string OwnerId { get; set; }
         public User Owner { get; set; }
 
         [Required]

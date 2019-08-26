@@ -3,26 +3,28 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using Blog_Project.Dtos.CategoryDtos;
+using Blog_Project.Dtos.PostDtos;
 using Blog_Project.Models;
 
 namespace Blog_Project.Dtos.UserDtos
 {
     public class UserAuthenticatedDto
     {
-        public Guid Id { get; set; }
+        public string Id { get; set; }
         public string Role { get; set; }
 
         public string Email { get; set; }
 
         public string UserName { get; set; }
 
-        public List<Post> Posts { get; set; }
+        public List<PostOutDto> Posts { get; set; }
 
-        public List<UserLikePost> LikedPosts { get; set; }
+        public List<UserLikePostOutDto> LikedPosts { get; set; }
 
-        public List<UserFollow> Followings { get; set; }
+        public List<UserFollowOutDto> Followings { get; set; }
 
-        public List<UserFollow> Followers { get; set; }
+        public List<UserFollowOutDto> Followers { get; set; }
 
         public string BirthDate { get; set; }
 
@@ -30,7 +32,7 @@ namespace Blog_Project.Dtos.UserDtos
 
         public string Description { get; set; }
 
-        public List<UserCategory> InterestedCategories { get; set; }
+        public List<UserCategoryOutDto> InterestedCategories { get; set; }
 
         public string Theme { get; set; }
 

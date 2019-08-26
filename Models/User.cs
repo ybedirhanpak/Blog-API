@@ -12,12 +12,12 @@ namespace Blog_Project.Models
         public User()
         {
             RegistrationDate = DateTime.Now;
-            Id = new Guid();
+            Id = Guid.NewGuid().ToString();
             IsDeleted = false;
         }
 
         [Key]
-        public Guid Id { get; set; }
+        public string Id { get; set; }
 
         [Required]
         public string Role { get; set; }

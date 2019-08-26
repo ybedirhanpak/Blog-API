@@ -18,10 +18,10 @@ namespace Blog_Project.Controllers
     [ApiController]
     public class MainCategoriesController : ControllerBase
     {
-        private readonly Repository<MainCategory> _mainCategoryRepository;
+        private readonly IRepository<MainCategory> _mainCategoryRepository;
         private readonly IMapper _mapper;
 
-        public MainCategoriesController(Repository<MainCategory> mainCategoryRepository, IMapper mapper)
+        public MainCategoriesController(IRepository<MainCategory> mainCategoryRepository, IMapper mapper)
         {
             _mainCategoryRepository = mainCategoryRepository;
             _mapper = mapper;
@@ -32,13 +32,13 @@ namespace Blog_Project.Controllers
          */
         [AllowAnonymous]
         [HttpGet]
-        public ActionResult<List<MainCategory>> GetAll()
+        public ActionResult<List<MainCategoryOutDto>> GetAll()
         {
-            return Ok(_mainCategoryRepository.All().Include(mc => mc.SubCategories).ToList());
+            return _mainCategoryRepository.Where(mc => !mc.IsDeleted).Include(mc => mc.SubCategories).Select(mc => _mapper.Map<MainCategoryOutDto>(mc)).ToList();
         }
 
         [HttpPost]
-        public ActionResult<MainCategory> Create([FromBody] MainCategoryCreateDto mainCategoryIn)
+        public ActionResult<MainCategoryOutDto> Create([FromBody] MainCategoryCreateDto mainCategoryIn)
         {
 
             //Check if request is sent by admin.
@@ -62,25 +62,26 @@ namespace Blog_Project.Controllers
 
             if (_mainCategoryRepository.Add(mainCategory))
             {
-                return Ok(mainCategory);
+                var mainCategoryOutDto = _mapper.Map<MainCategoryOutDto>(mainCategory);
+
+                return Ok(mainCategoryOutDto);
             }
 
             return BadRequest(new Message("Error when creating main category"));
         }
 
         [HttpPost("{id}")]
-        public ActionResult<MainCategory> Update(string id, [FromBody] MainCategoryCreateDto mainCategoryIn)
+        public ActionResult<MainCategoryOutDto> Update(string id, [FromBody] MainCategoryCreateDto mainCategoryIn)
         {
-
             //Check if request is sent by admin.
             if (!AuthorizationHelpers.IsAdmin(HttpContext.User))
             {
                 return BadRequest(new Message("Unauthorized user."));
             }
 
-            var mainCategory = _mainCategoryRepository.GetById(Guid.Parse(id));
+            var mainCategory = _mainCategoryRepository.GetById(id);
 
-            if (mainCategory == null)
+            if (mainCategory == null || mainCategory.IsDeleted)
             {
                 return NotFound(new Message("There is no main category with id: " + id));
             }
@@ -92,14 +93,16 @@ namespace Blog_Project.Controllers
 
             if (_mainCategoryRepository.Update(mainCategory))
             {
-                return Ok(mainCategory);
+                var mainCategoryOutDto = _mapper.Map<MainCategoryOutDto>(mainCategory);
+
+                return Ok(mainCategoryOutDto);
             }
 
             return BadRequest(new Message("Error when updating main category with id: " + id));
         }
 
         [HttpPost("{id}")]
-        public ActionResult<MainCategory> Delete(string id)
+        public IActionResult Delete(string id)
         {
             //Check if request is sent by admin.
             if (!AuthorizationHelpers.IsAdmin(HttpContext.User))
@@ -107,9 +110,9 @@ namespace Blog_Project.Controllers
                 return BadRequest(new Message("Unauthorized user."));
             }
 
-            var mainCategory = _mainCategoryRepository.GetById(Guid.Parse(id));
+            var mainCategory = _mainCategoryRepository.GetById(id);
 
-            if (mainCategory == null)
+            if (mainCategory == null || mainCategory.IsDeleted)
             {
                 return NotFound(new Message("There is no main category with id: " + id));
             }

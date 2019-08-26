@@ -7,8 +7,8 @@ namespace Blog_Project.Dtos.PostDtos
 {
     public class PostCreateDto
     {
-        public Guid OwnerId { get; set; }
-        public Guid CategoryId { get; set; }
+        public string OwnerId { get; set; }
+        public string CategoryId { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
     }

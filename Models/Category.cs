@@ -10,11 +10,11 @@ namespace Blog_Project.Models
     {
         public Category()
         {
-            Id = new Guid();
+            Id = Guid.NewGuid().ToString();
             IsDeleted = false;
         }
 
-        public Guid Id { get; set; }
+        public string Id { get; set; }
 
         [Required]
         public string Name { get; set; }
@@ -24,7 +24,7 @@ namespace Blog_Project.Models
 
         public List<PostCategory> RelatedPosts { get; set; }
 
-        public Guid? ParentId { get; set; }
+        public string ParentId { get; set; }
         public MainCategory Parent { get; set; }
 
         public List<UserCategory> FollowerUsers { get; set; }

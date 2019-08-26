@@ -40,13 +40,13 @@ namespace Blog_Project.Controllers
          * GET: api/posts/getAll
          */
         [HttpGet]
-        public IActionResult GetAll()
+        public ActionResult<List<PostOutDto>> GetAll()
         {
             //Check if token is given by admin
             var tokenUser = HttpContext.User;
             if (AuthorizationHelpers.IsAdmin(tokenUser))
             {
-                return Ok(_postRepository.All());
+                return _postRepository.Where(p => !p.IsDeleted).Select(p => _mapper.Map<PostOutDto>(p)).ToList();
             }
 
             return BadRequest(new Message("Unauthorized user."));
@@ -58,7 +58,7 @@ namespace Blog_Project.Controllers
          * GET: api/posts/get/{id}
          */
         [HttpGet("{id}")]
-        public ActionResult<Post> Get(string id,
+        public ActionResult<PostOutDto> Get(string id,
             [FromQuery] bool owner,
             [FromQuery] bool comment,
             [FromQuery] bool category,
@@ -66,19 +66,19 @@ namespace Blog_Project.Controllers
         {
 
             //Initialize a queryable object for further include operations.
-            var postQueryable = _postRepository.Where(p => p.Id == Guid.Parse(id));
+            var postQueryable = _postRepository.Where(p => p.Id == id);
 
             var rawPost = postQueryable.FirstOrDefault();
 
             //Check if there exists a post with given id
-            if (rawPost == null)
+            if (rawPost == null || rawPost.IsDeleted)
             {
                 return NotFound(new Message("No such post with this id: " + id));
             }
 
             //Check if token is given by admin or owner of the post
             var tokenUser = HttpContext.User;
-            if (!AuthorizationHelpers.IsAdmin(tokenUser) && !AuthorizationHelpers.IsAuthorizedUser(tokenUser, rawPost.OwnerId.ToString()))
+            if (!AuthorizationHelpers.IsAdmin(tokenUser) && !AuthorizationHelpers.IsAuthorizedUser(tokenUser, rawPost.OwnerId))
             {
                 return BadRequest(new Message("Unauthorized user."));
             }
@@ -101,17 +101,19 @@ namespace Blog_Project.Controllers
             //Find previous post with submit date
             var prevPost = _postRepository.Where(p => p.OwnerId == post.OwnerId && p.SubmitDate < post.SubmitDate)
                 .FirstOrDefault();
+            var prevPostOutDto = _mapper.Map<PostOutDto>(prevPost);
 
             //Find next post with submit date
             var nextPost = _postRepository.Where(p => p.OwnerId == post.OwnerId && p.SubmitDate > post.SubmitDate)
                 .FirstOrDefault();
+            var nextPostOutDto = _mapper.Map<PostOutDto>(nextPost);
 
             //Prepare post dto
             var postOutDto = _mapper.Map<PostOutDto>(post);
-            postOutDto.PreviousPost = prevPost;
-            postOutDto.NextPost = nextPost;
+            postOutDto.PreviousPost = prevPostOutDto;
+            postOutDto.NextPost = nextPostOutDto;
 
-            return Ok(postOutDto);
+            return postOutDto;
         }
 
         /**
@@ -120,7 +122,7 @@ namespace Blog_Project.Controllers
          * GET: api/posts/getByOwnerId/{ownerId}
          */
         [HttpGet("{ownerId}")]
-        public ActionResult<List<Post>> GetByOwnerId(string ownerId,
+        public ActionResult<List<PostOutDto>> GetByOwnerId(string ownerId,
             [FromQuery] int limit,
             [FromQuery] bool oldest)
         {
@@ -133,7 +135,7 @@ namespace Blog_Project.Controllers
             }
 
             //Create queryable object for limitations and order specifications
-            var postsQueryable = _postRepository.Where(p => p.OwnerId == Guid.Parse(ownerId));
+            var postsQueryable = _postRepository.Where(p => p.OwnerId == ownerId && !p.IsDeleted);
 
             //Order
             postsQueryable = oldest ? postsQueryable.OrderBy(p => p.SubmitDate) : postsQueryable.OrderByDescending(p => p.SubmitDate);
@@ -142,7 +144,7 @@ namespace Blog_Project.Controllers
             if (limit > 0)
                 postsQueryable = postsQueryable.Take(limit);
 
-            return Ok(postsQueryable.ToList());
+            return postsQueryable.Select(p => _mapper.Map<PostOutDto>(p)).ToList();
         }
 
 
@@ -153,16 +155,29 @@ namespace Blog_Project.Controllers
          * POST: api/posts/create
          */
         [HttpPost]
-        public IActionResult Create([FromBody] PostCreateDto postInDto)
+        public ActionResult<PostOutDto> Create([FromBody] PostCreateDto postInDto)
         {
 
-            if (!ModelState.IsValid || postInDto == null) return BadRequest(new Message("Post not valid or null"));
+            if (!ModelState.IsValid || postInDto == null)
+                return BadRequest(new Message("Post not valid or null"));
+
+            if(string.IsNullOrEmpty(postInDto.OwnerId))
+                return BadRequest(new Message("Please give valid owner Id"));
+
+            if (string.IsNullOrEmpty(postInDto.CategoryId))
+                return BadRequest(new Message("Please give valid category Id"));
+
+            if (string.IsNullOrEmpty(postInDto.Content))
+                return BadRequest(new Message("Please give valid content"));
+
+            if (string.IsNullOrEmpty(postInDto.Title))
+                return BadRequest(new Message("Please give valid title"));
 
             var postIn = _mapper.Map<Post>(postInDto);
 
             //Check if post is being created by its owner
             var tokenUser = HttpContext.User;
-            if (!AuthorizationHelpers.IsAuthorizedUser(tokenUser, postInDto.OwnerId.ToString()))
+            if (!AuthorizationHelpers.IsAuthorizedUser(tokenUser, postInDto.OwnerId))
             {
                 return BadRequest(new Message("Unauthorized user."));
             }
@@ -174,30 +189,38 @@ namespace Blog_Project.Controllers
             if (!_postCategoryRepository.Add(new PostCategory(postIn.Id, postInDto.CategoryId)))
                 return BadRequest(new Message("Error when adding post category into table. Please check category Id"));
 
-            return Ok(postIn);
+            PostOutDto postOutDto = _mapper.Map<PostOutDto>(postIn);
+
+            return postOutDto;
 
         }
 
         // PUT: api/posts/update
         [HttpPost("{id}")]
-        public IActionResult Update(string id, [FromBody] PostUpdateDto postInDto)
+        public ActionResult<PostOutDto> Update(string id, [FromBody] PostUpdateDto postInDto)
         {
             if (!ModelState.IsValid || postInDto == null) return BadRequest(new Message("Post not valid or null"));
 
             //Check if there exist a post with {id}
-            var post = _postRepository.GetById(Guid.Parse(id));
-            if (post == null)
+            var post = _postRepository.GetById(id);
+            if (post == null || post.IsDeleted)
                 return NotFound(new Message("No such post with this id: " + id));
 
             //Check if post is being updated by its owner
             var tokenUser = HttpContext.User;
-            if (!AuthorizationHelpers.IsAuthorizedUser(tokenUser, post.OwnerId.ToString()))
+            if (!AuthorizationHelpers.IsAuthorizedUser(tokenUser, post.OwnerId))
             {
                 return BadRequest(new Message("Unauthorized user."));
             }
 
             //Update post
             post.LastUpdateDate = DateTime.Now;
+
+            var postCategory = _postCategoryRepository.Where(pc => pc.PostId == id).FirstOrDefault();
+            var isCategoryUpdated = !string.IsNullOrWhiteSpace(postInDto.CategoryId) && postCategory != null;
+
+            if (isCategoryUpdated)
+                postCategory.CategoryId = postInDto.CategoryId;
 
             if (!string.IsNullOrWhiteSpace(postInDto.Title))
                 post.Title = postInDto.Title;
@@ -209,28 +232,46 @@ namespace Blog_Project.Controllers
                 post.ViewCount = postInDto.ViewCount;
 
             //Save changes
-            if (_postRepository.Update(post))
-                return Ok(post);
+            if (!_postRepository.Update(post))
+            {
+                return BadRequest(new Message("Error when updating post"));
+            }
 
-            return BadRequest(new Message("Error when updating post"));
+            //If category is not updated, finish here.
+            if (!isCategoryUpdated)
+            {
+                return Ok(post);
+            }
+
+            //Save post-category relation to the table
+            if (!_postCategoryRepository.Update(postCategory))
+                return BadRequest(new Message("Error when updating post category relation"));
+
+            var postOutDto = _mapper.Map<PostOutDto>(post);
+
+            return postOutDto;
         }
 
         // DELETE: api/posts/delete/5
         [HttpPost("{id}")]
         public IActionResult Delete(string id)
         {
-            var post = _postRepository.GetById(Guid.Parse(id));
-            if (post == null)
+            var post = _postRepository.GetById(id);
+            if (post == null || post.IsDeleted)
                 return NotFound(new Message("No such post with this id: " + id));
 
             //Check if post is being deleted by its owner or by admin
             var tokenUser = HttpContext.User;
-            if (!AuthorizationHelpers.IsAdmin(tokenUser) && !AuthorizationHelpers.IsAuthorizedUser(tokenUser, post.OwnerId.ToString()))
+            if (!AuthorizationHelpers.IsAdmin(tokenUser) && !AuthorizationHelpers.IsAuthorizedUser(tokenUser, post.OwnerId))
             {
                 return BadRequest(new Message("Unauthorized user."));
             }
 
-            if (_postRepository.Delete(post))
+            //Update post
+            post.IsDeleted = true;
+
+            //Update table
+            if (_postRepository.Update(post))
                 return Ok(new Message("Post with title: "+ post.Title + " and with id: " + post.Id + " deleted Successfully"));
 
             return BadRequest(new Message("Error when updating post"));

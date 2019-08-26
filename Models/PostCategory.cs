@@ -8,23 +8,29 @@ namespace Blog_Project.Models
 {
     public class PostCategory
     {
-
-        public PostCategory(Guid postId, Guid categoryId)
+        public PostCategory()
         {
+            Id = Guid.NewGuid().ToString();
+
+        }
+
+        public PostCategory(string postId, string categoryId)
+        {
+            Id = Guid.NewGuid().ToString();
             PostId = postId;
             CategoryId = categoryId;
 
         }
 
         [Key]
-        public Guid Id { get; set; }
+        public string Id { get; set; }
 
         [Required]
-        public Guid PostId { get; set; }
+        public string PostId { get; set; }
         public Post Post { get; set; }
 
         [Required]
-        public Guid CategoryId { get; set; }
+        public string CategoryId { get; set; }
         public Category Category { get; set; }
 
     }
