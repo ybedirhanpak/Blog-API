@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -32,9 +33,10 @@ namespace Blog_Project.Controllers
          */
         [AllowAnonymous]
         [HttpGet]
-        public ActionResult<List<MainCategoryOutDto>> GetAll()
+        public IActionResult GetAll()
         {
-            return _mainCategoryRepository.Where(mc => !mc.IsDeleted).Include(mc => mc.SubCategories).Select(mc => _mapper.Map<MainCategoryOutDto>(mc)).ToList();
+            return Ok(_mainCategoryRepository.All().Include(mc => mc.SubCategories)
+                .Select(mc => _mapper.Map<MainCategoryOutDto>(mc)));
         }
 
         [HttpPost]
@@ -44,7 +46,7 @@ namespace Blog_Project.Controllers
             //Check if request is sent by admin.
             if (!AuthorizationHelpers.IsAdmin(HttpContext.User))
             {
-                return BadRequest(new Message("Unauthorized user."));
+                return Unauthorized(new Message("Unauthorized user."));
             }
 
             //Check if request is valid.
@@ -76,12 +78,12 @@ namespace Blog_Project.Controllers
             //Check if request is sent by admin.
             if (!AuthorizationHelpers.IsAdmin(HttpContext.User))
             {
-                return BadRequest(new Message("Unauthorized user."));
+                return Unauthorized(new Message("Unauthorized user."));
             }
 
             var mainCategory = _mainCategoryRepository.GetById(id);
 
-            if (mainCategory == null || mainCategory.IsDeleted)
+            if (mainCategory == null)
             {
                 return NotFound(new Message("There is no main category with id: " + id));
             }
@@ -107,22 +109,20 @@ namespace Blog_Project.Controllers
             //Check if request is sent by admin.
             if (!AuthorizationHelpers.IsAdmin(HttpContext.User))
             {
-                return BadRequest(new Message("Unauthorized user."));
+                return Unauthorized(new Message("Unauthorized user."));
             }
 
             var mainCategory = _mainCategoryRepository.GetById(id);
 
-            if (mainCategory == null || mainCategory.IsDeleted)
+            if (mainCategory == null)
             {
                 return NotFound(new Message("There is no main category with id: " + id));
             }
 
-            mainCategory.IsDeleted = true;
-
-            if (_mainCategoryRepository.Update(mainCategory))
+            if (_mainCategoryRepository.Delete(mainCategory))
             {
-                return Ok("Main category with name: " + mainCategory.Name + " and with id: " + mainCategory.Id +
-                          " is deleted successfully");
+                return Ok(new Message("Main category with name: " + mainCategory.Name + " and with id: " + mainCategory.Id +
+                                      " is deleted successfully"));
             }
 
             return BadRequest(new Message("Error when updating main category with id: " + id));

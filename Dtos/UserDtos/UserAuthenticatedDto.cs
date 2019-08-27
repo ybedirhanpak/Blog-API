@@ -9,9 +9,8 @@ using Blog_Project.Models;
 
 namespace Blog_Project.Dtos.UserDtos
 {
-    public class UserAuthenticatedDto
+    public class UserAuthenticatedDto : BaseOutDto
     {
-        public string Id { get; set; }
         public string Role { get; set; }
 
         public string Email { get; set; }
@@ -27,8 +26,6 @@ namespace Blog_Project.Dtos.UserDtos
         public List<UserFollowOutDto> Followers { get; set; }
 
         public string BirthDate { get; set; }
-
-        public DateTime RegistrationDate { get; set; }
 
         public string Description { get; set; }
 

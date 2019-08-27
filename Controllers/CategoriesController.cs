@@ -20,20 +20,22 @@ namespace Blog_Project.Controllers
     {
         private readonly IRepository<Category> _categoryRepository;
         private readonly IRepository<UserCategory> _userCategoryRepository;
+        private readonly IRepository<MainCategory> _mainCategoryRepository;
         private readonly IRepository<User> _userRepository;
 
         private readonly IMapper _mapper;
 
-        public CategoriesController(IRepository<Category> categoryRepository,IRepository<User> userRepository, IRepository<UserCategory> userCategoryRepository, IMapper mapper)
+        public CategoriesController(IRepository<Category> categoryRepository,IRepository<User> userRepository, IRepository<UserCategory> userCategoryRepository, IRepository<MainCategory> mainCategoryRepository, IMapper mapper)
         {
             _categoryRepository = categoryRepository;
             _userCategoryRepository = userCategoryRepository;
             _userRepository = userRepository;
+            _mainCategoryRepository = mainCategoryRepository;
             _mapper = mapper;
         }
 
         [HttpGet]
-        public ActionResult<List<CategoryOutDto>> GetAll()
+        public IActionResult GetAll()
         {
             //Check if request is sent by admin
             var tokenUser = HttpContext.User;
@@ -41,10 +43,10 @@ namespace Blog_Project.Controllers
             //Check if request is sent by admin.
             if (!AuthorizationHelpers.IsAdmin(tokenUser))
             {
-                return BadRequest("Unauthorized User.");
+                return Unauthorized(new Message("Unauthorized user."));
             }
 
-            return _categoryRepository.Where(c => !c.IsDeleted).OrderBy(c => c.Name).Select(c => _mapper.Map<CategoryOutDto>(c)).ToList();
+            return Ok(_categoryRepository.All().OrderBy(c => c.Name).Select(c => _mapper.Map<CategoryOutDto>(c)).OrderBy(c => c.Name));
         }
 
         [AllowAnonymous]
@@ -60,7 +62,7 @@ namespace Blog_Project.Controllers
 
             var categoryRaw = categoryQueryable.FirstOrDefault();
             //Check if there exists a category with given id
-            if (categoryRaw == null || categoryRaw.IsDeleted)
+            if (categoryRaw == null)
             {
                 return NotFound(new Message("No such category with this id: " + id));
             }
@@ -72,7 +74,7 @@ namespace Blog_Project.Controllers
                 categoryQueryable = categoryQueryable.Include(c => c.RelatedPosts);
 
             if (user)
-                categoryQueryable = categoryQueryable.Include(c => c.FollowerUsers);
+                categoryQueryable = categoryQueryable.Include(c => c.FollowerUsers).ThenInclude(fu => fu.User);
 
             //Get the category object
             var category = categoryQueryable.FirstOrDefault();
@@ -98,14 +100,15 @@ namespace Blog_Project.Controllers
             //Check if request is sent by admin.
             if (!AuthorizationHelpers.IsAdmin(HttpContext.User))
             {
-                return BadRequest(new Message("Unauthorized user."));
+                return Unauthorized(new Message("Unauthorized user."));
+            }
+
+            if (_mainCategoryRepository.GetById(categoryInDto.ParentId) == null)
+            {
+                return BadRequest(new Message("There is no main category with id: " + categoryInDto.ParentId));
             }
 
             var categoryIn = _mapper.Map<Category>(categoryInDto);
-
-            if (_categoryRepository.Where(c => c.Name == categoryInDto.Name).Any())
-                return BadRequest(new Message("Category: " + categoryInDto.Name + " already exists."));
-
 
             if (_categoryRepository.Add(categoryIn))
             {
@@ -129,19 +132,19 @@ namespace Blog_Project.Controllers
             
             //Check if user is deleted
             var userIn = _userRepository.GetById(userCategoryDto.UserId);
-            if (userIn.IsDeleted)
-                return BadRequest(new Message("User: " + userIn.UserName + " is no longer exists"));
+            if (userIn == null)
+                return BadRequest(new Message("User: " + userCategoryDto.UserId + " no longer exists"));
 
             //Check if category is deleted
             var categoryIn = _categoryRepository.GetById(userCategoryDto.CategoryId);
-            if (categoryIn.IsDeleted)
-                return BadRequest(new Message("Category: " + categoryIn.Name + " is no longer exists"));
+            if (categoryIn == null)
+                return BadRequest(new Message("Category: " + userCategoryDto.CategoryId + " no longer exists"));
 
             var tokenUser = HttpContext.User;
             //Check if request is sent by user (who is being follower of the category) .
             if (!AuthorizationHelpers.IsAuthorizedUser(tokenUser, userCategoryDto.UserId))
             {
-                return BadRequest(new Message("Unauthorized user."));
+                return Unauthorized(new Message("Unauthorized user."));
             }
 
             //Get user-category relation from table
@@ -152,7 +155,7 @@ namespace Blog_Project.Controllers
             //If such relation exists
             if (userCategory != null)
             {
-                return BadRequest("User : " + userCategoryDto.UserId + " is already following Category : " + userCategoryDto.CategoryId);
+                return BadRequest(new Message("User : " + userCategoryDto.UserId + " is already following Category : " + userCategoryDto.CategoryId));
             }
 
             //Create new relation
@@ -169,7 +172,7 @@ namespace Blog_Project.Controllers
             return BadRequest(new Message("Error when adding user-category relation"));
         }
 
-        [HttpPost("{id}")]
+        [HttpPost]
         public IActionResult RemoveUser([FromBody] UserCategoryInDto userCategoryDto)
         {
             //Check if inputs are valid
@@ -181,19 +184,19 @@ namespace Blog_Project.Controllers
 
             //Check if user is deleted
             var userIn = _userRepository.GetById(userCategoryDto.UserId);
-            if (userIn.IsDeleted)
-                return BadRequest(new Message("User: " + userIn.UserName + " is no longer exists"));
+            if (userIn == null)
+                return BadRequest(new Message("User: " + userCategoryDto.UserId + " no longer exists"));
 
             //Check if category is deleted
             var categoryIn = _categoryRepository.GetById(userCategoryDto.CategoryId);
-            if (categoryIn.IsDeleted)
-                return BadRequest(new Message("Category: " + categoryIn.Name + " is no longer exists"));
+            if (categoryIn == null)
+                return BadRequest(new Message("Category: " + userCategoryDto.CategoryId + " no longer exists"));
 
             var tokenUser = HttpContext.User;
             //Check if request is sent by user (follower of the category) .
             if (!AuthorizationHelpers.IsAuthorizedUser(tokenUser, userCategoryDto.UserId))
             {
-                return BadRequest(new Message("Unauthorized user."));
+                return Unauthorized(new Message("Unauthorized user."));
             }
 
             //Get user-category relation from table
@@ -204,13 +207,13 @@ namespace Blog_Project.Controllers
             //If such relation doesn't exist
             if (userCategory == null)
             {
-                return BadRequest("User : " + userCategoryDto.UserId + " is not following Category : " + userCategoryDto.CategoryId);
+                return BadRequest(new Message("User : " + userCategoryDto.UserId + " is not following Category : " + userCategoryDto.CategoryId));
             }
 
             //Update table
             if (_userCategoryRepository.Delete(userCategory))
             {
-                return Ok("User : " + userCategory.UserId + " is deleted from Category : " + userCategory.CategoryId);
+                return Ok(new Message("User : " + userCategory.UserId + " is deleted from Category : " + userCategory.CategoryId));
             }
 
             return BadRequest(new Message("Error when deleting user-category relation"));
@@ -223,7 +226,7 @@ namespace Blog_Project.Controllers
             //Check if request is sent by admin.
             if (!AuthorizationHelpers.IsAdmin(HttpContext.User))
             {
-                return BadRequest(new Message("Unauthorized user."));
+                return Unauthorized(new Message("Unauthorized user."));
             }
 
             //Check if there exists a category with given id
@@ -260,22 +263,19 @@ namespace Blog_Project.Controllers
             //Check if request is sent by admin.
             if (!AuthorizationHelpers.IsAdmin(HttpContext.User))
             {
-                return BadRequest(new Message("Unauthorized user."));
+                return Unauthorized(new Message("Unauthorized user."));
             }
 
             var category = _categoryRepository.GetById(id);
 
             //Check if there exists a category with given id
-            if (category == null || category.IsDeleted)
+            if (category == null)
             {
                 return NotFound(new Message("No such category with this id: " + id));
             }
 
-            //Update category
-            category.IsDeleted = true;
-
             //Update table
-            if (_categoryRepository.Update(category))
+            if (_categoryRepository.Delete(category))
             {
                 return Ok(new Message("Category with name: "+ category.Name +" and id: "+ category.Id +"Deleted Successfully"));
             }

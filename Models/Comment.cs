@@ -5,19 +5,13 @@ using System.Text;
 
 namespace Blog_Project.Models
 {
-    public class Comment
+    public class Comment : BaseModel
     {
         public Comment()
         {
-            SubmitDate = DateTime.Now;
-            LastEditTime = SubmitDate;
             Id = Guid.NewGuid().ToString();
             LikeCount = 0;
-            IsDeleted = false;
         }
-
-        [Key]
-        public string Id { get; set; }
 
         [Required]
         public string OwnerId { get; set; }
@@ -28,16 +22,9 @@ namespace Blog_Project.Models
         public Post Post { get; set; }
 
         [Required]
-        public DateTime SubmitDate { get; set; }
-
-        public DateTime LastEditTime { get; set; }
-
-        [Required]
         public string Content { get; set; }
 
         public int LikeCount { get; set; }
-
-        public bool IsDeleted { get; set; }
     }
 
 }

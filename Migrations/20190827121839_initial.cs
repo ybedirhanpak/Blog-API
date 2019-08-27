@@ -12,8 +12,10 @@ namespace Blog_Project.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(nullable: false),
-                    Name = table.Column<string>(nullable: false),
-                    IsDeleted = table.Column<bool>(nullable: false)
+                    SubmitTime = table.Column<DateTime>(nullable: false),
+                    LastUpdateTime = table.Column<DateTime>(nullable: false),
+                    IsDeleted = table.Column<long>(nullable: false),
+                    Name = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -25,20 +27,21 @@ namespace Blog_Project.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(nullable: false),
+                    SubmitTime = table.Column<DateTime>(nullable: false),
+                    LastUpdateTime = table.Column<DateTime>(nullable: false),
+                    IsDeleted = table.Column<long>(nullable: false),
                     Role = table.Column<string>(nullable: false),
                     Email = table.Column<string>(nullable: false),
                     UserName = table.Column<string>(nullable: false),
                     PasswordHash = table.Column<byte[]>(nullable: false),
                     PasswordSalt = table.Column<byte[]>(nullable: false),
                     BirthDate = table.Column<string>(nullable: true),
-                    RegistrationDate = table.Column<DateTime>(nullable: false),
                     Description = table.Column<string>(nullable: true),
                     Theme = table.Column<string>(nullable: true),
                     FacebookLink = table.Column<string>(nullable: true),
                     TwitterLink = table.Column<string>(nullable: true),
                     InstagramLink = table.Column<string>(nullable: true),
-                    LinkedinLink = table.Column<string>(nullable: true),
-                    IsDeleted = table.Column<bool>(nullable: false)
+                    LinkedinLink = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -50,10 +53,12 @@ namespace Blog_Project.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(nullable: false),
+                    SubmitTime = table.Column<DateTime>(nullable: false),
+                    LastUpdateTime = table.Column<DateTime>(nullable: false),
+                    IsDeleted = table.Column<long>(nullable: false),
                     Name = table.Column<string>(nullable: false),
                     ImageUrl = table.Column<string>(nullable: false),
-                    ParentId = table.Column<string>(nullable: true),
-                    IsDeleted = table.Column<bool>(nullable: false)
+                    ParentId = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -71,13 +76,13 @@ namespace Blog_Project.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(nullable: false),
+                    SubmitTime = table.Column<DateTime>(nullable: false),
+                    LastUpdateTime = table.Column<DateTime>(nullable: false),
+                    IsDeleted = table.Column<long>(nullable: false),
                     OwnerId = table.Column<string>(nullable: false),
                     Title = table.Column<string>(nullable: false),
                     Content = table.Column<string>(nullable: false),
-                    SubmitDate = table.Column<DateTime>(nullable: false),
-                    LastUpdateDate = table.Column<DateTime>(nullable: false),
                     ViewCount = table.Column<int>(nullable: false),
-                    IsDeleted = table.Column<bool>(nullable: false),
                     Tags = table.Column<string[]>(nullable: true)
                 },
                 constraints: table =>
@@ -96,6 +101,9 @@ namespace Blog_Project.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(nullable: false),
+                    SubmitTime = table.Column<DateTime>(nullable: false),
+                    LastUpdateTime = table.Column<DateTime>(nullable: false),
+                    IsDeleted = table.Column<long>(nullable: false),
                     FollowerId = table.Column<string>(nullable: false),
                     FollowedId = table.Column<string>(nullable: false)
                 },
@@ -121,6 +129,9 @@ namespace Blog_Project.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(nullable: false),
+                    SubmitTime = table.Column<DateTime>(nullable: false),
+                    LastUpdateTime = table.Column<DateTime>(nullable: false),
+                    IsDeleted = table.Column<long>(nullable: false),
                     UserId = table.Column<string>(nullable: false),
                     CategoryId = table.Column<string>(nullable: false)
                 },
@@ -146,13 +157,13 @@ namespace Blog_Project.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(nullable: false),
+                    SubmitTime = table.Column<DateTime>(nullable: false),
+                    LastUpdateTime = table.Column<DateTime>(nullable: false),
+                    IsDeleted = table.Column<long>(nullable: false),
                     OwnerId = table.Column<string>(nullable: false),
                     PostId = table.Column<string>(nullable: false),
-                    SubmitDate = table.Column<DateTime>(nullable: false),
-                    LastEditTime = table.Column<DateTime>(nullable: false),
                     Content = table.Column<string>(nullable: false),
-                    LikeCount = table.Column<int>(nullable: false),
-                    IsDeleted = table.Column<bool>(nullable: false)
+                    LikeCount = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -176,6 +187,9 @@ namespace Blog_Project.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(nullable: false),
+                    SubmitTime = table.Column<DateTime>(nullable: false),
+                    LastUpdateTime = table.Column<DateTime>(nullable: false),
+                    IsDeleted = table.Column<long>(nullable: false),
                     PostId = table.Column<string>(nullable: false),
                     CategoryId = table.Column<string>(nullable: false)
                 },
@@ -201,6 +215,9 @@ namespace Blog_Project.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(nullable: false),
+                    SubmitTime = table.Column<DateTime>(nullable: false),
+                    LastUpdateTime = table.Column<DateTime>(nullable: false),
+                    IsDeleted = table.Column<long>(nullable: false),
                     UserId = table.Column<string>(nullable: false),
                     PostId = table.Column<string>(nullable: false)
                 },

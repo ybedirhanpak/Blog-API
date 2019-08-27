@@ -13,13 +13,19 @@ namespace Blog_Project.Settings.Configurations
         public void Configure(EntityTypeBuilder<UserFollow> builder)
         {
 
+            builder.HasQueryFilter(x => x.IsDeleted == 0L);
+
             builder.HasOne(uf => uf.Follower)
                 .WithMany(u => u.Followings)
-                .HasForeignKey(uf => uf.FollowerId).IsRequired();
+                .HasForeignKey(uf => uf.FollowerId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(uf => uf.Followed)
                 .WithMany(u => u.Followers)
-                .HasForeignKey(uf => uf.FollowedId).IsRequired();
+                .HasForeignKey(uf => uf.FollowedId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

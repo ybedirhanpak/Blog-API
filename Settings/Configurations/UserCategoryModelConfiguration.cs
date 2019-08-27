@@ -13,14 +13,19 @@ namespace Blog_Project.Settings.Configurations
         public void Configure(EntityTypeBuilder<UserCategory> builder)
         {
 
+            builder.HasQueryFilter(x => x.IsDeleted == 0L);
+
             builder.HasOne(uc => uc.User)
                 .WithMany(u => u.InterestedCategories)
-                .HasForeignKey(uc => uc.UserId);
-
+                .HasForeignKey(uc => uc.UserId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(uc => uc.Category)
                 .WithMany(c => c.FollowerUsers)
-                .HasForeignKey(uc => uc.CategoryId);
+                .HasForeignKey(uc => uc.CategoryId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
 
         }
 

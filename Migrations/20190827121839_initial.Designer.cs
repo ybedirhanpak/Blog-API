@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Blog_Project.Migrations
 {
     [DbContext(typeof(BlogDbContext))]
-    [Migration("20190826090337_initial")]
+    [Migration("20190827121839_initial")]
     partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -29,12 +29,16 @@ namespace Blog_Project.Migrations
                     b.Property<string>("ImageUrl")
                         .IsRequired();
 
-                    b.Property<bool>("IsDeleted");
+                    b.Property<long>("IsDeleted");
+
+                    b.Property<DateTime>("LastUpdateTime");
 
                     b.Property<string>("Name")
                         .IsRequired();
 
                     b.Property<string>("ParentId");
+
+                    b.Property<DateTime>("SubmitTime");
 
                     b.HasKey("Id");
 
@@ -51,9 +55,9 @@ namespace Blog_Project.Migrations
                     b.Property<string>("Content")
                         .IsRequired();
 
-                    b.Property<bool>("IsDeleted");
+                    b.Property<long>("IsDeleted");
 
-                    b.Property<DateTime>("LastEditTime");
+                    b.Property<DateTime>("LastUpdateTime");
 
                     b.Property<int>("LikeCount");
 
@@ -63,7 +67,7 @@ namespace Blog_Project.Migrations
                     b.Property<string>("PostId")
                         .IsRequired();
 
-                    b.Property<DateTime>("SubmitDate");
+                    b.Property<DateTime>("SubmitTime");
 
                     b.HasKey("Id");
 
@@ -79,10 +83,14 @@ namespace Blog_Project.Migrations
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<bool>("IsDeleted");
+                    b.Property<long>("IsDeleted");
+
+                    b.Property<DateTime>("LastUpdateTime");
 
                     b.Property<string>("Name")
                         .IsRequired();
+
+                    b.Property<DateTime>("SubmitTime");
 
                     b.HasKey("Id");
 
@@ -97,14 +105,14 @@ namespace Blog_Project.Migrations
                     b.Property<string>("Content")
                         .IsRequired();
 
-                    b.Property<bool>("IsDeleted");
+                    b.Property<long>("IsDeleted");
 
-                    b.Property<DateTime>("LastUpdateDate");
+                    b.Property<DateTime>("LastUpdateTime");
 
                     b.Property<string>("OwnerId")
                         .IsRequired();
 
-                    b.Property<DateTime>("SubmitDate");
+                    b.Property<DateTime>("SubmitTime");
 
                     b.Property<string[]>("Tags");
 
@@ -128,8 +136,14 @@ namespace Blog_Project.Migrations
                     b.Property<string>("CategoryId")
                         .IsRequired();
 
+                    b.Property<long>("IsDeleted");
+
+                    b.Property<DateTime>("LastUpdateTime");
+
                     b.Property<string>("PostId")
                         .IsRequired();
+
+                    b.Property<DateTime>("SubmitTime");
 
                     b.HasKey("Id");
 
@@ -156,7 +170,9 @@ namespace Blog_Project.Migrations
 
                     b.Property<string>("InstagramLink");
 
-                    b.Property<bool>("IsDeleted");
+                    b.Property<long>("IsDeleted");
+
+                    b.Property<DateTime>("LastUpdateTime");
 
                     b.Property<string>("LinkedinLink");
 
@@ -166,10 +182,10 @@ namespace Blog_Project.Migrations
                     b.Property<byte[]>("PasswordSalt")
                         .IsRequired();
 
-                    b.Property<DateTime>("RegistrationDate");
-
                     b.Property<string>("Role")
                         .IsRequired();
+
+                    b.Property<DateTime>("SubmitTime");
 
                     b.Property<string>("Theme");
 
@@ -190,6 +206,12 @@ namespace Blog_Project.Migrations
 
                     b.Property<string>("CategoryId")
                         .IsRequired();
+
+                    b.Property<long>("IsDeleted");
+
+                    b.Property<DateTime>("LastUpdateTime");
+
+                    b.Property<DateTime>("SubmitTime");
 
                     b.Property<string>("UserId")
                         .IsRequired();
@@ -214,6 +236,12 @@ namespace Blog_Project.Migrations
                     b.Property<string>("FollowerId")
                         .IsRequired();
 
+                    b.Property<long>("IsDeleted");
+
+                    b.Property<DateTime>("LastUpdateTime");
+
+                    b.Property<DateTime>("SubmitTime");
+
                     b.HasKey("Id");
 
                     b.HasIndex("FollowedId");
@@ -228,8 +256,14 @@ namespace Blog_Project.Migrations
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<long>("IsDeleted");
+
+                    b.Property<DateTime>("LastUpdateTime");
+
                     b.Property<string>("PostId")
                         .IsRequired();
+
+                    b.Property<DateTime>("SubmitTime");
 
                     b.Property<string>("UserId")
                         .IsRequired();

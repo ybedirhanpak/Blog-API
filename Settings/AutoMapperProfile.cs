@@ -40,7 +40,7 @@ namespace Blog_Project.Settings
             //Post
             CreateMap<PostCreateDto, Post>();
             CreateMap<Post, PostOutDto>();
-            
+
             //Comment
             CreateMap<CommentCreateDto, Comment>();
             CreateMap<Comment, CommentOutDto>();

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Blog_Project.Models
 {
-    public class UserFollow
+    public class UserFollow : BaseModel
     {
         public UserFollow()
         {
@@ -19,9 +19,6 @@ namespace Blog_Project.Models
             FollowerId = followerId;
             FollowedId = followedId;
         }
-
-        [Key]
-        public string Id { get; set; }
 
         [Required]
         public string FollowerId { get; set; }

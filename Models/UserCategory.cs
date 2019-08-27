@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Blog_Project.Models
 {
-    public class UserCategory
+    public class UserCategory : BaseModel
     {
 
         public UserCategory()
@@ -20,9 +20,6 @@ namespace Blog_Project.Models
             UserId = userId;
             CategoryId = categoryId;
         }
-
-        [Key]
-        public string Id { get; set; }
 
         [Required]
         public string UserId { get; set; }

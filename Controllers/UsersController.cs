@@ -128,16 +128,16 @@ namespace Blog_Project.Controllers
 
         //GET api/users/get
         [HttpGet]
-        public ActionResult<List<UserOutDto>> GetAll()
+        public IActionResult GetAll()
         {
             //Check if token is given by admin
             var tokenUser = HttpContext.User;
             if (!AuthorizationHelpers.IsAdmin(tokenUser))
             {
-                return BadRequest(new Message("Unauthorized user."));
+                return Unauthorized(new Message("Unauthorized user."));
             }
 
-            return _userRepository.Where(u => !u.IsDeleted).Select(u => _mapper.Map<UserOutDto>(u)).ToList();
+            return Ok(_userRepository.All().Select(u => _mapper.Map<UserOutDto>(u)));
         }
 
         //GET api/users/get
@@ -154,7 +154,7 @@ namespace Blog_Project.Controllers
 
             if (!AuthorizationHelpers.IsAdmin(tokenUser) && !AuthorizationHelpers.IsAuthorizedUser(tokenUser, id))
             {
-                return BadRequest(new Message("Unauthorized user."));
+                return Unauthorized(new Message("Unauthorized user."));
             }
 
             //Initialize a queryable object for further include operations.
@@ -163,7 +163,7 @@ namespace Blog_Project.Controllers
             var rawUser = userQueryable.FirstOrDefault();
 
             //Check if there exists a user with given id
-            if (rawUser == null || rawUser.IsDeleted)
+            if (rawUser == null)
             {
                 return NotFound(new Message("No such user with this id: " + id));
             }
@@ -172,7 +172,7 @@ namespace Blog_Project.Controllers
                 userQueryable = userQueryable.Include(u => u.Posts);
 
             if (likedPosts)
-                userQueryable = userQueryable.Include(u => u.LikedPosts);
+                userQueryable = userQueryable.Include(u => u.LikedPosts).ThenInclude(lp => lp.Post);
 
             if (followings)
                 userQueryable = userQueryable.Include(u => u.Followings).ThenInclude(uf => uf.Followed);
@@ -181,7 +181,7 @@ namespace Blog_Project.Controllers
                 userQueryable = userQueryable.Include(u => u.Followers).ThenInclude(uf => uf.Follower);
 
             if (category)
-                userQueryable = userQueryable.Include(u => u.InterestedCategories);
+                userQueryable = userQueryable.Include(u => u.InterestedCategories).ThenInclude(ic => ic.Category);
 
             //Get the user object
             var user = userQueryable.FirstOrDefault();
@@ -197,7 +197,7 @@ namespace Blog_Project.Controllers
         public ActionResult<UserOutDto> Update(string id, [FromBody]UserUpdateDto userDto)
         {
             var userOld = _userRepository.GetById(id);
-            if (userOld == null || userOld.IsDeleted)
+            if (userOld == null)
             {
                 return NotFound(new Message("No such user with this id: " + id));
             }
@@ -207,7 +207,7 @@ namespace Blog_Project.Controllers
 
             if (!AuthorizationHelpers.IsAdmin(tokenUser) && !AuthorizationHelpers.IsAuthorizedUser(tokenUser,id))
             {
-                return BadRequest(new Message("Unauthorized user."));
+                return Unauthorized(new Message("Unauthorized user."));
             }
 
             if (!string.IsNullOrWhiteSpace(userDto.BirthDate))
@@ -259,12 +259,12 @@ namespace Blog_Project.Controllers
                 return BadRequest(new Message("Please give valid followed id."));
 
             //Check if any of the users is deleted
-            if (_userRepository.GetById(userFollowDto.FollowerId).IsDeleted)
+            if (_userRepository.GetById(userFollowDto.FollowerId) == null)
             {
                 return BadRequest(new Message("Follower user : " + userFollowDto.FollowerId + " is no longer exists"));
             }
 
-            if (_userRepository.GetById(userFollowDto.FollowedId).IsDeleted)
+            if (_userRepository.GetById(userFollowDto.FollowedId) == null)
             {
                 return BadRequest(new Message("Followed user : " + userFollowDto.FollowedId + " is no longer exists"));
             }
@@ -275,7 +275,7 @@ namespace Blog_Project.Controllers
             //If follower user is not authorized, finish here
             if (!AuthorizationHelpers.IsAuthorizedUser(tokenUser, userFollowDto.FollowerId))
             {
-                return BadRequest(new Message("Unauthorized user."));
+                return Unauthorized(new Message("Unauthorized user."));
             }
 
             //Get follow relation from table
@@ -311,12 +311,12 @@ namespace Blog_Project.Controllers
                 return BadRequest(new Message("Please give valid followed id."));
 
             //Check if any of the users is deleted
-            if (_userRepository.GetById(userFollowDto.FollowerId).IsDeleted)
+            if (_userRepository.GetById(userFollowDto.FollowerId) == null)
             {
                 return BadRequest(new Message("Follower user : " + userFollowDto.FollowerId + " is no longer exists"));
             }
 
-            if (_userRepository.GetById(userFollowDto.FollowedId).IsDeleted)
+            if (_userRepository.GetById(userFollowDto.FollowedId) == null)
             {
                 return BadRequest(new Message("Followed user : " + userFollowDto.FollowedId + " is no longer exists"));
             }
@@ -327,7 +327,7 @@ namespace Blog_Project.Controllers
             //If follower user is not authorized, finish here
             if (!AuthorizationHelpers.IsAuthorizedUser(tokenUser, userFollowDto.FollowerId))
             {
-                return BadRequest(new Message("Unauthorized user."));
+                return Unauthorized(new Message("Unauthorized user."));
             }
 
             //Get follow relation from table
@@ -364,16 +364,16 @@ namespace Blog_Project.Controllers
 
             var userIn = _userRepository.GetById(userLikePostDto.UserId);
             //Check if user is deleted
-            if (userIn.IsDeleted)
+            if (userIn == null)
             {
-                return BadRequest(new Message("User : " + userIn.UserName + " is no longer exists"));
+                return BadRequest(new Message("User : " + userLikePostDto.UserId + " is no longer exists"));
             }
 
             var postIn = _postRepository.GetById(userLikePostDto.PostId);
             //Check if post is deleted
-            if (postIn.IsDeleted)
+            if (postIn == null)
             {
-                return BadRequest(new Message("Post : " + postIn.Title + " is no longer exists"));
+                return BadRequest(new Message("Post : " + userLikePostDto.PostId + " is no longer exists"));
             }
 
             //Check if token is given by authorized user
@@ -382,7 +382,7 @@ namespace Blog_Project.Controllers
             //If follower user is not authorized, finish here
             if (!AuthorizationHelpers.IsAuthorizedUser(tokenUser, userLikePostDto.UserId))
             {
-                return BadRequest(new Message("Unauthorized user."));
+                return Unauthorized(new Message("Unauthorized user."));
             }
 
             //Get the user like relation from table
@@ -419,16 +419,16 @@ namespace Blog_Project.Controllers
 
             var userIn = _userRepository.GetById(userLikePostDto.UserId);
             //Check if user is deleted
-            if (userIn.IsDeleted)
+            if (userIn == null)
             {
-                return BadRequest(new Message("User : " + userIn.UserName + " is no longer exists"));
+                return BadRequest(new Message("User : " + userLikePostDto.UserId + " is no longer exists"));
             }
 
             var postIn = _postRepository.GetById(userLikePostDto.PostId);
             //Check if post is deleted
-            if (postIn.IsDeleted)
+            if (postIn == null)
             {
-                return BadRequest(new Message("Post : " + postIn.Title + " is no longer exists"));
+                return BadRequest(new Message("Post : " + userLikePostDto.PostId + " is no longer exists"));
             }
 
             //Check if token is given by authorized user
@@ -437,7 +437,7 @@ namespace Blog_Project.Controllers
             //If follower user is not authorized, finish here
             if (!AuthorizationHelpers.IsAuthorizedUser(tokenUser, userLikePostDto.UserId))
             {
-                return BadRequest(new Message("Unauthorized user."));
+                return Unauthorized(new Message("Unauthorized user."));
             }
 
             //Get the user like relation from table
@@ -471,7 +471,7 @@ namespace Blog_Project.Controllers
 
             if (!AuthorizationHelpers.IsAdmin(tokenUser) && !AuthorizationHelpers.IsAuthorizedUser(tokenUser, id))
             {
-                return BadRequest(new Message("Unauthorized user."));
+                return Unauthorized(new Message("Unauthorized user."));
             }
 
             //Find user in table
@@ -483,17 +483,7 @@ namespace Blog_Project.Controllers
                 return BadRequest(new Message("No such user with this id: " + id));
             }
 
-            //Update user
-            user.IsDeleted = true;
-
-            //Update user's posts
-            foreach (var p in user.Posts)
-            {
-                p.IsDeleted = true;
-                _postRepository.Update(p);
-            }
-
-            if (_userRepository.Update(user))
+            if (_userRepository.Delete(user))
             {
                 return Ok(new Message("User with email: " + user.Email + ", id: " + id + " deleted successfully"));
             }

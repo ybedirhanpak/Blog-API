@@ -10,6 +10,5 @@ namespace Blog_Project.Dtos.PostDtos
         public string CategoryId { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
-        public int ViewCount { get; set; }
     }
 }

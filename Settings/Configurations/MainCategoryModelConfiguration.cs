@@ -8,14 +8,14 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Blog_Project.Settings.Configurations
 {
-    public class UserModelConfiguration : IEntityTypeConfiguration<User>
+    public class MainCategoryModelConfiguration : IEntityTypeConfiguration<MainCategory>
     {
-
-        public void Configure(EntityTypeBuilder<User> builder)
+        public void Configure(EntityTypeBuilder<MainCategory> builder)
         {
             builder.HasQueryFilter(x => x.IsDeleted == 0L);
 
-            builder.HasIndex(u => new { u.Email, u.UserName, u.IsDeleted }).IsUnique();
+            builder.HasIndex(mc => mc.Name).IsUnique();
         }
+
     }
 }

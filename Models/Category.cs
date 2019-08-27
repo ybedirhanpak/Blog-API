@@ -6,15 +6,12 @@ using System.Threading.Tasks;
 
 namespace Blog_Project.Models
 {
-    public class Category
+    public class Category : BaseModel
     {
         public Category()
         {
             Id = Guid.NewGuid().ToString();
-            IsDeleted = false;
         }
-
-        public string Id { get; set; }
 
         [Required]
         public string Name { get; set; }
@@ -22,13 +19,12 @@ namespace Blog_Project.Models
         [Required]
         public string ImageUrl { get; set; }
 
-        public List<PostCategory> RelatedPosts { get; set; }
+        public List<Post> RelatedPosts { get; set; }
 
         public string ParentId { get; set; }
         public MainCategory Parent { get; set; }
 
         public List<UserCategory> FollowerUsers { get; set; }
 
-        public bool IsDeleted { get; set; }
     }
 }

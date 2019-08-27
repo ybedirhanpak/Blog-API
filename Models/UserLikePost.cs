@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Blog_Project.Models
 {
-    public class UserLikePost
+    public class UserLikePost : BaseModel
     {
         public UserLikePost()
         {
@@ -19,9 +19,6 @@ namespace Blog_Project.Models
             UserId = userId;
             PostId = postId;
         }
-
-        [Key]
-        public string Id { get; set; }
 
         [Required]
         public string UserId { get; set; }

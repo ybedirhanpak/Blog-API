@@ -30,15 +30,15 @@ namespace Blog_Project.Controllers
         }
 
         [HttpGet]
-        public ActionResult<List<CommentOutDto>> GetAll()
+        public IActionResult GetAll()
         {
             //If request is not sent by admin, finish here
             if (!AuthorizationHelpers.IsAdmin(HttpContext.User))
             {
-                return BadRequest(new Message("Unauthorized user."));
+                return Unauthorized(new Message("Unauthorized user."));
             }
 
-            return _commentRepository.Where(c => !c.IsDeleted).Select(c => _mapper.Map<CommentOutDto>(c)).ToList();
+            return Ok(_commentRepository.All().Select(c => _mapper.Map<CommentOutDto>(c)));
         }
 
         [HttpGet("{id}")]
@@ -49,7 +49,7 @@ namespace Blog_Project.Controllers
 
             //If request is not sent by admin, finish here
             if (!AuthorizationHelpers.IsAdmin(HttpContext.User))
-                return BadRequest(new Message("Unauthorized user."));
+                return Unauthorized(new Message("Unauthorized user."));
 
 
             //Initialize a queryable object for further include operations.
@@ -57,7 +57,7 @@ namespace Blog_Project.Controllers
 
             var commentRaw = commentQueryable.FirstOrDefault();
             //Check if there exists a category with given id
-            if (commentRaw == null || commentRaw.IsDeleted)
+            if (commentRaw == null)
                 return NotFound(new Message("No such comment with this id: " + id));
 
             if (owner)
@@ -81,7 +81,7 @@ namespace Blog_Project.Controllers
             var tokenUser = HttpContext.User;
             //If request is not sent by owner, finish here
             if (!AuthorizationHelpers.IsAuthorizedUser(tokenUser, commentInDto.OwnerId))
-                return BadRequest(new Message("Unauthorized user."));
+                return Unauthorized(new Message("Unauthorized user."));
             
             var commentIn = _mapper.Map<Comment>(commentInDto);
 
@@ -100,7 +100,7 @@ namespace Blog_Project.Controllers
             var comment = _commentRepository.GetById(id);
 
             //Check if this comment exists
-            if (comment == null || comment.IsDeleted)
+            if (comment == null)
             {
                 return BadRequest(new Message("The comment with id: "+ id + " doesn't exist."));
             }
@@ -109,11 +109,8 @@ namespace Blog_Project.Controllers
             //If request is not sent by owner, finish here
             if (!AuthorizationHelpers.IsAuthorizedUser(tokenUser, comment.OwnerId))
             {
-                return BadRequest(new Message("Unauthorized user."));
+                return Unauthorized(new Message("Unauthorized user."));
             }
-
-            //Update comment content
-            comment.LastEditTime = DateTime.Now;
 
             if (!string.IsNullOrEmpty(commentInDto.Content))
                 comment.Content = commentInDto.Content;
@@ -137,7 +134,7 @@ namespace Blog_Project.Controllers
             var comment = _commentRepository.GetById(id);
 
             //Check if such comment exists
-            if (comment == null || comment.IsDeleted)
+            if (comment == null)
             {
                 return BadRequest(new Message("The comment with id: " + id + " doesn't exist."));
             }
@@ -145,13 +142,10 @@ namespace Blog_Project.Controllers
             var tokenUser = HttpContext.User;
             //If request is not sent by owner or by admin, finish here
             if (!AuthorizationHelpers.IsAuthorizedUser(tokenUser, comment.OwnerId) && !AuthorizationHelpers.IsAdmin(tokenUser))
-                return BadRequest(new Message("Unauthorized user."));
-
-            //Update comment
-            comment.IsDeleted = true;
+                return Unauthorized(new Message("Unauthorized user."));
 
             //Update table
-            if (_commentRepository.Update(comment))
+            if (_commentRepository.Delete(comment))
             {
                 return Ok(new Message("Comment with id: " + id + " deleted successfully"));
             }

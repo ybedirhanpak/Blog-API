@@ -12,13 +12,19 @@ namespace Blog_Project.Settings.Configurations
     {
         public void Configure(EntityTypeBuilder<UserLikePost> builder)
         {
+            builder.HasQueryFilter(x => x.IsDeleted == 0L);
+
             builder.HasOne(up => up.User)
                 .WithMany(u => u.LikedPosts)
-                .HasForeignKey(up => up.UserId);
+                .HasForeignKey(up => up.UserId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(up => up.Post)
                 .WithMany(p => p.LikedUsers)
-                .HasForeignKey(up => up.PostId);
+                .HasForeignKey(up => up.PostId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
     }
