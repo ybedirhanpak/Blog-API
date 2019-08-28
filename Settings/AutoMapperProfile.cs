@@ -4,7 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Blog_Project.Dtos;
-using Blog_Project.Dtos.Dtos.UserDtos;
+using Blog_Project.Dtos.CategoryDtos;
+using Blog_Project.Dtos.CommentDtos;
+using Blog_Project.Dtos.PostDtos;
 using Blog_Project.Dtos.UserDtos;
 using Blog_Project.Models;
 
@@ -18,21 +20,31 @@ namespace Blog_Project.Settings
             //User
             CreateMap<UserCreateDto, User>();
             CreateMap<User, UserAuthenticatedDto>();
-            CreateMap<UserUpdateDto, User>();
             CreateMap<User, UserOutDto>();
+            CreateMap<UserFollow, UserFollowOutDto>();
+
+            //Main Category
+            CreateMap<MainCategoryCreateDto, MainCategory>();
+            CreateMap<MainCategory, MainCategoryOutDto>();
 
             //Category
             CreateMap<CategoryInDto, Category>();
+            CreateMap<Category, CategoryOutDto>();
 
             //User-Category
-            CreateMap<UserCategoryDto, UserCategory>();
+            CreateMap<UserCategory, UserCategoryOutDto>();
+
+            //User-Post
+            CreateMap<UserLikePost, UserLikePostOutDto>();
 
             //Post
-            CreateMap<PostInDto, Post>();
+            CreateMap<PostCreateDto, Post>();
             CreateMap<Post, PostOutDto>();
-            
+
             //Comment
             CreateMap<CommentCreateDto, Comment>();
+            CreateMap<Comment, CommentOutDto>();
+
         }
 
     }

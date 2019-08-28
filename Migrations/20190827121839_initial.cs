@@ -8,37 +8,34 @@ namespace Blog_Project.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Categories",
+                name: "MainCategories",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(nullable: false),
-                    Name = table.Column<string>(nullable: false),
-                    ImageUrl = table.Column<string>(nullable: false),
-                    ParentId = table.Column<Guid>(nullable: true)
+                    Id = table.Column<string>(nullable: false),
+                    SubmitTime = table.Column<DateTime>(nullable: false),
+                    LastUpdateTime = table.Column<DateTime>(nullable: false),
+                    IsDeleted = table.Column<long>(nullable: false),
+                    Name = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Categories", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Categories_Categories_ParentId",
-                        column: x => x.ParentId,
-                        principalTable: "Categories",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                    table.PrimaryKey("PK_MainCategories", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(nullable: false),
+                    Id = table.Column<string>(nullable: false),
+                    SubmitTime = table.Column<DateTime>(nullable: false),
+                    LastUpdateTime = table.Column<DateTime>(nullable: false),
+                    IsDeleted = table.Column<long>(nullable: false),
                     Role = table.Column<string>(nullable: false),
                     Email = table.Column<string>(nullable: false),
                     UserName = table.Column<string>(nullable: false),
                     PasswordHash = table.Column<byte[]>(nullable: false),
                     PasswordSalt = table.Column<byte[]>(nullable: false),
                     BirthDate = table.Column<string>(nullable: true),
-                    RegistrationDate = table.Column<DateTime>(nullable: false),
                     Description = table.Column<string>(nullable: true),
                     Theme = table.Column<string>(nullable: true),
                     FacebookLink = table.Column<string>(nullable: true),
@@ -52,16 +49,41 @@ namespace Blog_Project.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Categories",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    SubmitTime = table.Column<DateTime>(nullable: false),
+                    LastUpdateTime = table.Column<DateTime>(nullable: false),
+                    IsDeleted = table.Column<long>(nullable: false),
+                    Name = table.Column<string>(nullable: false),
+                    ImageUrl = table.Column<string>(nullable: false),
+                    ParentId = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Categories", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Categories_MainCategories_ParentId",
+                        column: x => x.ParentId,
+                        principalTable: "MainCategories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Posts",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(nullable: false),
-                    OwnerId = table.Column<Guid>(nullable: false),
+                    Id = table.Column<string>(nullable: false),
+                    SubmitTime = table.Column<DateTime>(nullable: false),
+                    LastUpdateTime = table.Column<DateTime>(nullable: false),
+                    IsDeleted = table.Column<long>(nullable: false),
+                    OwnerId = table.Column<string>(nullable: false),
                     Title = table.Column<string>(nullable: false),
                     Content = table.Column<string>(nullable: false),
-                    SubmitDate = table.Column<DateTime>(nullable: false),
-                    LastUpdateDate = table.Column<DateTime>(nullable: false),
-                    ViewCount = table.Column<int>(nullable: false)
+                    ViewCount = table.Column<int>(nullable: false),
+                    Tags = table.Column<string[]>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -75,37 +97,15 @@ namespace Blog_Project.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserCategory",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(nullable: false),
-                    UserId = table.Column<Guid>(nullable: false),
-                    CategoryId = table.Column<Guid>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserCategory", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_UserCategory_Categories_CategoryId",
-                        column: x => x.CategoryId,
-                        principalTable: "Categories",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_UserCategory_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "UserFollows",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(nullable: false),
-                    FollowerId = table.Column<Guid>(nullable: false),
-                    FollowedId = table.Column<Guid>(nullable: false)
+                    Id = table.Column<string>(nullable: false),
+                    SubmitTime = table.Column<DateTime>(nullable: false),
+                    LastUpdateTime = table.Column<DateTime>(nullable: false),
+                    IsDeleted = table.Column<long>(nullable: false),
+                    FollowerId = table.Column<string>(nullable: false),
+                    FollowedId = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -125,13 +125,43 @@ namespace Blog_Project.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "UserCategory",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    SubmitTime = table.Column<DateTime>(nullable: false),
+                    LastUpdateTime = table.Column<DateTime>(nullable: false),
+                    IsDeleted = table.Column<long>(nullable: false),
+                    UserId = table.Column<string>(nullable: false),
+                    CategoryId = table.Column<string>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserCategory", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserCategory_Categories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Categories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserCategory_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Comments",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(nullable: false),
-                    OwnerId = table.Column<Guid>(nullable: false),
-                    PostId = table.Column<Guid>(nullable: false),
-                    SubmitDate = table.Column<DateTime>(nullable: false),
+                    Id = table.Column<string>(nullable: false),
+                    SubmitTime = table.Column<DateTime>(nullable: false),
+                    LastUpdateTime = table.Column<DateTime>(nullable: false),
+                    IsDeleted = table.Column<long>(nullable: false),
+                    OwnerId = table.Column<string>(nullable: false),
+                    PostId = table.Column<string>(nullable: false),
                     Content = table.Column<string>(nullable: false),
                     LikeCount = table.Column<int>(nullable: false)
                 },
@@ -156,9 +186,12 @@ namespace Blog_Project.Migrations
                 name: "PostCategory",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(nullable: false),
-                    PostId = table.Column<Guid>(nullable: false),
-                    CategoryId = table.Column<Guid>(nullable: false)
+                    Id = table.Column<string>(nullable: false),
+                    SubmitTime = table.Column<DateTime>(nullable: false),
+                    LastUpdateTime = table.Column<DateTime>(nullable: false),
+                    IsDeleted = table.Column<long>(nullable: false),
+                    PostId = table.Column<string>(nullable: false),
+                    CategoryId = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -181,9 +214,12 @@ namespace Blog_Project.Migrations
                 name: "UserLikePost",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(nullable: false),
-                    UserId = table.Column<Guid>(nullable: false),
-                    PostId = table.Column<Guid>(nullable: false)
+                    Id = table.Column<string>(nullable: false),
+                    SubmitTime = table.Column<DateTime>(nullable: false),
+                    LastUpdateTime = table.Column<DateTime>(nullable: false),
+                    IsDeleted = table.Column<long>(nullable: false),
+                    UserId = table.Column<string>(nullable: false),
+                    PostId = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -285,6 +321,9 @@ namespace Blog_Project.Migrations
 
             migrationBuilder.DropTable(
                 name: "Posts");
+
+            migrationBuilder.DropTable(
+                name: "MainCategories");
 
             migrationBuilder.DropTable(
                 name: "Users");

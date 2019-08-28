@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens;
 using Blog_Project.Models;
 using System.Security.Claims;
+using Blog_Project.Settings;
 
 
 namespace Blog_Project.Helpers

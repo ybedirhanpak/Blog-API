@@ -12,9 +12,15 @@ namespace Blog_Project.Settings.Configurations
     {
         public void Configure(EntityTypeBuilder<Category> builder)
         {
+            builder.HasQueryFilter(x => x.IsDeleted == 0L);
+
+            builder.HasIndex(c => c.Name).IsUnique();
+
             builder.HasOne(c => c.Parent)
-                .WithMany(c => c.Children)
-                .HasForeignKey(c => c.ParentId);
+                .WithMany(mc => mc.SubCategories)
+                .HasForeignKey(c => c.ParentId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
     }

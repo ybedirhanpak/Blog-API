@@ -12,10 +12,19 @@ namespace Blog_Project.Settings.Configurations
     {
         public void Configure(EntityTypeBuilder<Post> builder)
         {
+            builder.HasQueryFilter(x => x.IsDeleted == 0L);
+
             builder.HasOne(p => p.Owner)
                 .WithMany(u => u.Posts)
-                .HasForeignKey(p => p.OwnerId);
+                .HasForeignKey(p => p.OwnerId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
 
+            builder.HasOne(p => p.Category)
+                .WithMany(c => c.RelatedPosts)
+                .HasForeignKey(p => p.CategoryId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
     }

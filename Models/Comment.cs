@@ -5,37 +5,26 @@ using System.Text;
 
 namespace Blog_Project.Models
 {
-    public class Comment
+    public class Comment : BaseModel
     {
         public Comment()
         {
-            SubmitDate = DateTime.Now;
-            LastEditTime = SubmitDate;
-            Id = new Guid();
+            Id = Guid.NewGuid().ToString();
             LikeCount = 0;
         }
 
-        [Key]
-        public Guid Id { get; set; }
-
         [Required]
-        public Guid OwnerId { get; set; }
+        public string OwnerId { get; set; }
         public User Owner { get; set; }
 
         [Required]
-        public Guid PostId { get; set; }
+        public string PostId { get; set; }
         public Post Post { get; set; }
-
-        [Required]
-        public DateTime SubmitDate { get; set; }
-
-        public DateTime LastEditTime { get; set; }
 
         [Required]
         public string Content { get; set; }
 
         public int LikeCount { get; set; }
-
     }
 
 }

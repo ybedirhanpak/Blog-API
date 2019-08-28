@@ -6,21 +6,17 @@ using System.Threading.Tasks;
 
 namespace Blog_Project.Models
 {
-    public class Post
+    public class Post : BaseModel
     {
 
         public Post()
         {
-            Id = Guid.NewGuid();
-            SubmitDate = DateTime.Now;
-            LastUpdateDate = SubmitDate;
+            Id = Guid.NewGuid().ToString();
             ViewCount = 0;
         }
 
-        public Guid Id { get; set; }
-
         [Required]
-        public Guid OwnerId { get; set; }
+        public string OwnerId { get; set; }
         public User Owner { get; set; }
 
         [Required]
@@ -31,18 +27,14 @@ namespace Blog_Project.Models
         [Required]
         public string Content { get; set; }
 
-        public List<PostCategory> RelatedCategories { get; set; }
-
         [Required]
-        public DateTime SubmitDate { get; set; }
-
-        public DateTime LastUpdateDate { get; set; }
+        public string CategoryId { get; set; }
+        public Category Category { get; set; }
 
         public List<UserLikePost> LikedUsers { get; set; }
 
         public int ViewCount { get; set; }
 
-        //TODO ADD TAGS
-
+        public string[] Tags { get; set; }
     }
 }

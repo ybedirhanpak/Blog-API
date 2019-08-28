@@ -3,16 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using Blog_Project.Dtos;
+using Blog_Project.Dtos.CommentDtos;
 using Blog_Project.Helpers;
 using Blog_Project.Models;
 using Blog_Project.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Blog_Project.Controllers
 {
-    
+    [Authorize]
     [Route("api/[controller]/[action]")]
     [ApiController]
     public class CommentsController : ControllerBase
@@ -29,25 +30,35 @@ namespace Blog_Project.Controllers
         }
 
         [HttpGet]
-        public ActionResult<List<Comment>> GetAll()
+        public IActionResult GetAll()
         {
-            return _commentRepository.All().ToList();
+            //If request is not sent by admin, finish here
+            if (!AuthorizationHelpers.IsAdmin(HttpContext.User))
+            {
+                return Unauthorized(new Message("Unauthorized user."));
+            }
+
+            return Ok(_commentRepository.All().Select(c => _mapper.Map<CommentOutDto>(c)));
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Comment> Get(string id,
+        public ActionResult<CommentOutDto> Get(string id,
             [FromQuery] bool owner,
             [FromQuery] bool post)
         {
 
-            //Initialize a queryable object for further include operations.
-            var commentQueryable = _commentRepository.Where(c => c.Id == Guid.Parse(id));
+            //If request is not sent by admin, finish here
+            if (!AuthorizationHelpers.IsAdmin(HttpContext.User))
+                return Unauthorized(new Message("Unauthorized user."));
 
+
+            //Initialize a queryable object for further include operations.
+            var commentQueryable = _commentRepository.Where(c => c.Id == id);
+
+            var commentRaw = commentQueryable.FirstOrDefault();
             //Check if there exists a category with given id
-            if (commentQueryable.FirstOrDefault() == null)
-            {
+            if (commentRaw == null)
                 return NotFound(new Message("No such comment with this id: " + id));
-            }
 
             if (owner)
                 commentQueryable = commentQueryable.Include(c => c.Owner);
@@ -58,28 +69,35 @@ namespace Blog_Project.Controllers
             //Get comment object
             var comment = commentQueryable.FirstOrDefault();
 
-            return Ok(comment);
+            var commentOutDto = _mapper.Map<CommentOutDto>(comment);
+
+            return Ok(commentOutDto);
         }
 
         [HttpPost]
-        public ActionResult<Comment> Create([FromBody] CommentCreateDto commentInDto)
+        public ActionResult<CommentOutDto> Create([FromBody] CommentCreateDto commentInDto)
         {
-            var commentIn = _mapper.Map<Comment>(commentInDto);
 
-            //TODO Authorization with token, check if owner id of the comment equals to the user id in token.
+            var tokenUser = HttpContext.User;
+            //If request is not sent by owner, finish here
+            if (!AuthorizationHelpers.IsAuthorizedUser(tokenUser, commentInDto.OwnerId))
+                return Unauthorized(new Message("Unauthorized user."));
+            
+            var commentIn = _mapper.Map<Comment>(commentInDto);
 
             if (_commentRepository.Add(commentIn))
             {
-                return Ok(commentIn);
+                var commentOutDto = _mapper.Map<CommentOutDto>(commentIn);
+                return Ok(commentOutDto);
             }
 
             return BadRequest(new Message("Error when creating comment"));
         }
 
         [HttpPost("{id}")]
-        public ActionResult<Comment> Update(string id, [FromBody] CommentUpdateDto commentInDto)
+        public ActionResult<CommentOutDto> Update(string id, [FromBody] CommentUpdateDto commentInDto)
         {
-            var comment = _commentRepository.GetById(Guid.Parse(id));
+            var comment = _commentRepository.GetById(id);
 
             //Check if this comment exists
             if (comment == null)
@@ -87,14 +105,22 @@ namespace Blog_Project.Controllers
                 return BadRequest(new Message("The comment with id: "+ id + " doesn't exist."));
             }
 
-            //TODO Authorization with token, check if owner id of the comment equals to the user id in token.
+            var tokenUser = HttpContext.User;
+            //If request is not sent by owner, finish here
+            if (!AuthorizationHelpers.IsAuthorizedUser(tokenUser, comment.OwnerId))
+            {
+                return Unauthorized(new Message("Unauthorized user."));
+            }
 
-            comment.Content = commentInDto.Content;
-            comment.LastEditTime = DateTime.Now;
+            if (!string.IsNullOrEmpty(commentInDto.Content))
+                comment.Content = commentInDto.Content;
 
+            //Update table
             if (_commentRepository.Update(comment))
             {
-                return Ok(comment);
+                var commentOutDto = _mapper.Map<CommentOutDto>(comment);
+
+                return Ok(commentOutDto);
             }
 
             return BadRequest(new Message("Error when updating comment with id: " + id));
@@ -104,16 +130,22 @@ namespace Blog_Project.Controllers
         [HttpPost("{id}")]
         public IActionResult Delete(string id)
         {
-            //TODO Authorization with token, check if user id in token equals to the owner id of the comment or owner id of the post
+            //Get comment from table
+            var comment = _commentRepository.GetById(id);
 
-            var commentIn = _commentRepository.GetById(Guid.Parse(id));
-
-            if (commentIn == null)
+            //Check if such comment exists
+            if (comment == null)
             {
                 return BadRequest(new Message("The comment with id: " + id + " doesn't exist."));
             }
 
-            if (_commentRepository.Delete(commentIn))
+            var tokenUser = HttpContext.User;
+            //If request is not sent by owner or by admin, finish here
+            if (!AuthorizationHelpers.IsAuthorizedUser(tokenUser, comment.OwnerId) && !AuthorizationHelpers.IsAdmin(tokenUser))
+                return Unauthorized(new Message("Unauthorized user."));
+
+            //Update table
+            if (_commentRepository.Delete(comment))
             {
                 return Ok(new Message("Comment with id: " + id + " deleted successfully"));
             }

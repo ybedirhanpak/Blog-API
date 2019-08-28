@@ -6,17 +6,26 @@ using System.Threading.Tasks;
 
 namespace Blog_Project.Models
 {
-    public class UserFollow
+    public class UserFollow : BaseModel
     {
-        [Key]
-        public Guid Id { get; set; }
+        public UserFollow()
+        {
+            Id = Guid.NewGuid().ToString();
+        }
+
+        public UserFollow (string followerId, string followedId)
+        {
+            Id = Guid.NewGuid().ToString();
+            FollowerId = followerId;
+            FollowedId = followedId;
+        }
 
         [Required]
-        public Guid FollowerId { get; set; }
+        public string FollowerId { get; set; }
         public User Follower { get; set; }
 
         [Required]
-        public Guid FollowedId { get; set; }
+        public string FollowedId { get; set; }
         public User Followed { get; set; }
     }
         

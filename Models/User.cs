@@ -7,16 +7,12 @@ using System.Threading.Tasks;
 
 namespace Blog_Project.Models
 {
-    public class User
+    public class User : BaseModel
     {
         public User()
         {
-            RegistrationDate = DateTime.Now;
-            Id = new Guid();
+            Id = Guid.NewGuid().ToString();
         }
-
-        [Key]
-        public Guid Id { get; set; }
 
         [Required]
         public string Role { get; set; }
@@ -43,9 +39,6 @@ namespace Blog_Project.Models
 
         public string BirthDate { get; set; }
 
-        [Required]
-        public DateTime RegistrationDate { get; set; }
-
         public string Description { get; set; }
 
         public List<UserCategory> InterestedCategories { get; set; }
@@ -59,5 +52,6 @@ namespace Blog_Project.Models
         public string InstagramLink { get; set; }
 
         public string LinkedinLink { get; set; }
+
     }
 }

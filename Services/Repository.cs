@@ -33,7 +33,7 @@ namespace Blog_Project.Services
          * Returns the entity with given id.
          * Returns null if no such entity
          */
-        public T GetById(Guid id)
+        public T GetById(string id)
         {
             return Table.Find(id);
         }

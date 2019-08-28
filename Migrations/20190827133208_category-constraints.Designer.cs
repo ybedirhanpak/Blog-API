@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Blog_Project.Migrations
 {
     [DbContext(typeof(BlogDbContext))]
-    [Migration("20190821142217_initial")]
-    partial class initial
+    [Migration("20190827133208_category-constraints")]
+    partial class categoryconstraints
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -23,18 +23,28 @@ namespace Blog_Project.Migrations
 
             modelBuilder.Entity("Blog_Project.Models.Category", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
 
                     b.Property<string>("ImageUrl")
                         .IsRequired();
 
+                    b.Property<long>("IsDeleted");
+
+                    b.Property<DateTime>("LastUpdateTime");
+
                     b.Property<string>("Name")
                         .IsRequired();
 
-                    b.Property<Guid?>("ParentId");
+                    b.Property<string>("ParentId")
+                        .IsRequired();
+
+                    b.Property<DateTime>("SubmitTime");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.HasIndex("ParentId");
 
@@ -43,19 +53,25 @@ namespace Blog_Project.Migrations
 
             modelBuilder.Entity("Blog_Project.Models.Comment", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
 
                     b.Property<string>("Content")
                         .IsRequired();
 
+                    b.Property<long>("IsDeleted");
+
+                    b.Property<DateTime>("LastUpdateTime");
+
                     b.Property<int>("LikeCount");
 
-                    b.Property<Guid>("OwnerId");
+                    b.Property<string>("OwnerId")
+                        .IsRequired();
 
-                    b.Property<Guid>("PostId");
+                    b.Property<string>("PostId")
+                        .IsRequired();
 
-                    b.Property<DateTime>("SubmitDate");
+                    b.Property<DateTime>("SubmitTime");
 
                     b.HasKey("Id");
 
@@ -66,19 +82,46 @@ namespace Blog_Project.Migrations
                     b.ToTable("Comments");
                 });
 
+            modelBuilder.Entity("Blog_Project.Models.MainCategory", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<long>("IsDeleted");
+
+                    b.Property<DateTime>("LastUpdateTime");
+
+                    b.Property<string>("Name")
+                        .IsRequired();
+
+                    b.Property<DateTime>("SubmitTime");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MainCategories");
+                });
+
             modelBuilder.Entity("Blog_Project.Models.Post", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<string>("CategoryId")
+                        .IsRequired();
 
                     b.Property<string>("Content")
                         .IsRequired();
 
-                    b.Property<DateTime>("LastUpdateDate");
+                    b.Property<long>("IsDeleted");
 
-                    b.Property<Guid>("OwnerId");
+                    b.Property<DateTime>("LastUpdateTime");
 
-                    b.Property<DateTime>("SubmitDate");
+                    b.Property<string>("OwnerId")
+                        .IsRequired();
+
+                    b.Property<DateTime>("SubmitTime");
+
+                    b.Property<string[]>("Tags");
 
                     b.Property<string>("Title")
                         .IsRequired();
@@ -87,32 +130,16 @@ namespace Blog_Project.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CategoryId");
+
                     b.HasIndex("OwnerId");
 
                     b.ToTable("Posts");
                 });
 
-            modelBuilder.Entity("Blog_Project.Models.PostCategory", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<Guid>("CategoryId");
-
-                    b.Property<Guid>("PostId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CategoryId");
-
-                    b.HasIndex("PostId");
-
-                    b.ToTable("PostCategory");
-                });
-
             modelBuilder.Entity("Blog_Project.Models.User", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
 
                     b.Property<string>("BirthDate");
@@ -126,6 +153,10 @@ namespace Blog_Project.Migrations
 
                     b.Property<string>("InstagramLink");
 
+                    b.Property<long>("IsDeleted");
+
+                    b.Property<DateTime>("LastUpdateTime");
+
                     b.Property<string>("LinkedinLink");
 
                     b.Property<byte[]>("PasswordHash")
@@ -134,10 +165,10 @@ namespace Blog_Project.Migrations
                     b.Property<byte[]>("PasswordSalt")
                         .IsRequired();
 
-                    b.Property<DateTime>("RegistrationDate");
-
                     b.Property<string>("Role")
                         .IsRequired();
+
+                    b.Property<DateTime>("SubmitTime");
 
                     b.Property<string>("Theme");
 
@@ -148,17 +179,28 @@ namespace Blog_Project.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Email", "UserName", "IsDeleted")
+                        .IsUnique();
+
                     b.ToTable("Users");
                 });
 
             modelBuilder.Entity("Blog_Project.Models.UserCategory", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<Guid>("CategoryId");
+                    b.Property<string>("CategoryId")
+                        .IsRequired();
 
-                    b.Property<Guid>("UserId");
+                    b.Property<long>("IsDeleted");
+
+                    b.Property<DateTime>("LastUpdateTime");
+
+                    b.Property<DateTime>("SubmitTime");
+
+                    b.Property<string>("UserId")
+                        .IsRequired();
 
                     b.HasKey("Id");
 
@@ -171,12 +213,20 @@ namespace Blog_Project.Migrations
 
             modelBuilder.Entity("Blog_Project.Models.UserFollow", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<Guid>("FollowedId");
+                    b.Property<string>("FollowedId")
+                        .IsRequired();
 
-                    b.Property<Guid>("FollowerId");
+                    b.Property<string>("FollowerId")
+                        .IsRequired();
+
+                    b.Property<long>("IsDeleted");
+
+                    b.Property<DateTime>("LastUpdateTime");
+
+                    b.Property<DateTime>("SubmitTime");
 
                     b.HasKey("Id");
 
@@ -189,12 +239,20 @@ namespace Blog_Project.Migrations
 
             modelBuilder.Entity("Blog_Project.Models.UserLikePost", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<Guid>("PostId");
+                    b.Property<long>("IsDeleted");
 
-                    b.Property<Guid>("UserId");
+                    b.Property<DateTime>("LastUpdateTime");
+
+                    b.Property<string>("PostId")
+                        .IsRequired();
+
+                    b.Property<DateTime>("SubmitTime");
+
+                    b.Property<string>("UserId")
+                        .IsRequired();
 
                     b.HasKey("Id");
 
@@ -207,9 +265,10 @@ namespace Blog_Project.Migrations
 
             modelBuilder.Entity("Blog_Project.Models.Category", b =>
                 {
-                    b.HasOne("Blog_Project.Models.Category", "Parent")
-                        .WithMany("Children")
-                        .HasForeignKey("ParentId");
+                    b.HasOne("Blog_Project.Models.MainCategory", "Parent")
+                        .WithMany("SubCategories")
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Blog_Project.Models.Comment", b =>
@@ -227,22 +286,14 @@ namespace Blog_Project.Migrations
 
             modelBuilder.Entity("Blog_Project.Models.Post", b =>
                 {
-                    b.HasOne("Blog_Project.Models.User", "Owner")
-                        .WithMany("Posts")
-                        .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("Blog_Project.Models.PostCategory", b =>
-                {
                     b.HasOne("Blog_Project.Models.Category", "Category")
                         .WithMany("RelatedPosts")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("Blog_Project.Models.Post", "Post")
-                        .WithMany("RelatedCategories")
-                        .HasForeignKey("PostId")
+                    b.HasOne("Blog_Project.Models.User", "Owner")
+                        .WithMany("Posts")
+                        .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
