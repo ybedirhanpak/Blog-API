@@ -13,6 +13,10 @@ namespace Blog_Project.Dtos.UserDtos
 
         public string UserName { get; set; }
 
+        public string FirstName { get; set; }
+
+        public string LastName { get; set; }
+
         public string BirthDate { get; set; }
 
         public string Description { get; set; }

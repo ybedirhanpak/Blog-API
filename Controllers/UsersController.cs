@@ -141,6 +141,7 @@ namespace Blog_Project.Controllers
         }
 
         //GET api/users/get
+        // localhost:5000/api/users/get/aşsdjkhaşlsdjlşk?posts=true&likedPosts=true
         [HttpGet("{id}")]
         public ActionResult<UserOutDto> Get(string id,
             [FromQuery] bool posts,
@@ -216,6 +217,12 @@ namespace Blog_Project.Controllers
             if (!string.IsNullOrWhiteSpace(userDto.Description))
                 userOld.Description = userDto.Description;
 
+            if (!string.IsNullOrWhiteSpace(userDto.FirstName))
+                userOld.FirstName = userDto.FirstName;
+
+            if (!string.IsNullOrWhiteSpace(userDto.LastName))
+                userOld.LastName = userDto.LastName;
+
             if (!string.IsNullOrWhiteSpace(userDto.FacebookLink))
                 userOld.FacebookLink = userDto.FacebookLink;
 
@@ -241,7 +248,6 @@ namespace Blog_Project.Controllers
             if (_userRepository.Update(userOld))
             {
                 var userOutDto = _mapper.Map<UserOutDto>(userOld);
-
                 return userOutDto;
             }
 

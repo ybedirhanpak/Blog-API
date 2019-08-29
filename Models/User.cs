@@ -24,6 +24,12 @@ namespace Blog_Project.Models
         public string UserName { get; set; }
 
         [Required]
+        public string FirstName { get; set; }
+
+        [Required]
+        public string LastName { get; set; }
+
+        [Required]
         public byte[] PasswordHash { get; set; }
 
         [Required]

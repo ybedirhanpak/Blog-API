@@ -8,6 +8,8 @@ namespace Blog_Project.Dtos.UserDtos
     public class UserUpdateDto
     {
         public string Password { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
         public string BirthDate { get; set; }
         public string Description { get; set; }
         public string Theme { get; set; }
