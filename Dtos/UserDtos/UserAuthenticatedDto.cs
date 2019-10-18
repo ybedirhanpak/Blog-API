@@ -17,6 +17,10 @@ namespace Blog_Project.Dtos.UserDtos
 
         public string UserName { get; set; }
 
+        public string FirstName { get; set; }
+
+        public string LastName { get; set; }
+
         public List<PostOutDto> Posts { get; set; }
 
         public List<UserLikePostOutDto> LikedPosts { get; set; }
